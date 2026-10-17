@@ -33,6 +33,7 @@ button:focus-visible,textarea:focus{outline:3px solid var(--brass);outline-offse
 .line{max-width:85%;padding:10px 14px;border-radius:14px;background:#ECE6D8;color:#0E2A3B;line-height:1.45}
 .line.interim{opacity:.6}
 .line.ellie{align-self:flex-end;background:var(--navy);color:var(--on-navy);font-weight:700}
+.line.elder{align-self:flex-end;background:#FBEBC7;color:#0E2A3B}
 .line mark{background:var(--ellie-careful-wash);color:inherit;border-radius:4px;padding:0 2px}
 .fallback{margin-top:12px}
 .fallback textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:var(--ellie-radius);padding:12px;font:inherit;color:var(--ink);background:var(--bg)}
@@ -60,7 +61,7 @@ ul.tactics li.on{color:var(--ink);font-weight:700}
     <div class="pill" id="status">Line protected</div>
   </header>
   <h1>Live call protection</h1>
-  <p class="lead">The microphone is the phone line. Put a phone on speaker next to the laptop, or let someone play the caller. Ellie transcribes, scores the call as it goes, and speaks up at 80.</p>
+  <p class="lead">The microphone is the phone line. Put a phone on speaker next to the laptop, let someone play the caller, or play the sample call. Ellie transcribes, scores every line as it goes, and speaks up at 80.</p>
 
   <div class="grid">
     <section class="card">
@@ -68,11 +69,12 @@ ul.tactics li.on{color:var(--ink);font-weight:700}
         <button class="primary" id="start">Answer the call</button>
         <button class="ghost" id="stop" disabled>Hang up</button>
         <button class="ghost" id="reset">New call</button>
+        <button class="ghost" id="sample">Play a sample scam call</button>
         <span class="pill" id="timer">00:00</span>
       </div>
       <div class="transcript" id="transcript" aria-live="polite"></div>
-      <div class="fallback" id="fallback" hidden>
-        <label for="typed"><b>No speech recognition in this browser.</b> Type what the caller says, one line at a time, and press Enter.</label>
+      <div class="fallback" id="fallback">
+        <label for="typed" id="typedLabel">Or type what the caller says, one line at a time, and press Enter.</label>
         <textarea id="typed" placeholder="This is Detective Weber, Berlin police..."></textarea>
       </div>
     </section>
@@ -160,7 +162,7 @@ function act(){
   addLine(WARNING, "ellie");
   const sms = `Possible scam call to Mum right now. The caller claimed authority and asked for money or codes. Ellie warned her. Call her when you can.`;
   document.getElementById("smsText").textContent = sms; document.getElementById("sms").classList.add("show");
-  if (window.speechSynthesis){ rec && rec.stop(); const u = new SpeechSynthesisUtterance(WARNING); u.lang = "en-GB"; u.rate = .95;
+  if (window.speechSynthesis){ rec && rec.stop(); if (sampleAudio) { try { sampleAudio.volume = 0.25; } catch(e){} } const u = new SpeechSynthesisUtterance(WARNING); u.lang = "en-GB"; u.rate = .95;
     u.onend = () => { if (rec && !stopped) try { rec.start(); } catch(e){} }; speechSynthesis.speak(u); }
 }
 function addLine(text, who, interim){
@@ -179,8 +181,37 @@ function heard(text){
   const el = document.getElementById("interim"); if (el) el.remove();
   lines.push(text); addLine(text); score();
 }
+const SAMPLE = [
+  ["c1","Good afternoon. Is this Mrs. M\u00fcller?"],
+  ["r1","Yes, speaking. Who is this?"],
+  ["c2","This is Detective Weber, Berlin police, fraud department."],
+  ["r2","Police? Is something wrong?"],
+  ["c3","We arrested a gang last night. They had your name and your bank details. Your savings are at risk."],
+  ["r3","Oh my goodness. What should I do?"],
+  ["c4","We must act today, before the bank closes. And please, don\u2019t tell anyone, not even your family. Bank staff may be involved."],
+  ["r4","Not even my daughter?"],
+  ["c5","No one. Go to the shop now and buy \u20ac2,000 in Google Play cards. Then read me the codes."],
+  ["c6","Mrs. M\u00fcller? Are you still there?"],
+  ["r5","I\u2019m not buying anything. Goodbye."],
+];
+let samplePlaying = false, sampleAudio = null;
+function playClip(id){ return new Promise(res => { sampleAudio = new Audio("call-demo/audio/" + id + ".mp3"); sampleAudio.onended = res; sampleAudio.onerror = () => setTimeout(res, 1800); sampleAudio.play().catch(() => setTimeout(res, 1800)); }); }
+async function playSample(){
+  if (samplePlaying) return; reset(); samplePlaying = true;
+  start(true);
+  for (const [id, text] of SAMPLE){
+    if (!samplePlaying) break;
+    if (id === "r5" && !acted) continue;
+    await playClip(id);
+    if (id.startsWith("c")) heard(text); else addLine(text, "elder");
+    if (id === "c5"){ let n = 0; while (!acted && n++ < 40) await new Promise(r => setTimeout(r, 100)); }
+    if (acted && (id === "c5")) await new Promise(r => setTimeout(r, 6500));
+    await new Promise(r => setTimeout(r, 500));
+  }
+  samplePlaying = false; stop();
+}
 let stopped = true;
-function start(){
+function start(noMic){
   stopped = false; t0 = Date.now(); clearInterval(tick);
   tick = setInterval(()=>{ const s = Math.floor((Date.now()-t0)/1000); document.getElementById("timer").textContent = String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0"); }, 500);
   document.getElementById("status").textContent = "Live"; document.getElementById("status").className = "pill live";
@@ -188,15 +219,17 @@ function start(){
   addLine("This call is protected by Ellie.", "ellie");
   if (window.speechSynthesis){ const u = new SpeechSynthesisUtterance("This call is protected by Ellie."); u.lang="en-GB"; speechSynthesis.speak(u); }
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR){ document.getElementById("fallback").hidden = false; return; }
+  if (noMic) return;
+  if (!SR){ document.getElementById("typedLabel").innerHTML = "<b>No speech recognition in this browser.</b> Type what the caller says, one line at a time, and press Enter."; return; }
   rec = new SR(); rec.lang = "en-US"; rec.continuous = true; rec.interimResults = true;
   rec.onresult = e => { let interim = ""; for (let i = e.resultIndex; i < e.results.length; i++){ const r = e.results[i]; if (r.isFinal) heard(r[0].transcript.trim()); else interim += r[0].transcript; } if (interim) addLine(interim, "caller", true); };
   rec.onend = () => { if (!stopped) try { rec.start(); } catch(e){} };
-  rec.onerror = e => { if (e.error === "not-allowed"){ document.getElementById("fallback").hidden = false; stopped = true; } };
-  try { rec.start(); } catch(e){ document.getElementById("fallback").hidden = false; }
+  rec.onerror = e => { if (e.error === "not-allowed"){ document.getElementById("typedLabel").innerHTML = "<b>Microphone blocked.</b> Type what the caller says instead, one line at a time, and press Enter."; stopped = true; } };
+  try { rec.start(); } catch(e){}
 }
 function stop(){
-  stopped = true; rec && rec.stop(); clearInterval(tick);
+  stopped = true; samplePlaying = false; if (sampleAudio) { try { sampleAudio.pause(); } catch(e){} }
+  rec && rec.stop(); clearInterval(tick);
   document.getElementById("status").textContent = acted ? "Call ended, scam stopped" : "Call ended";
   document.getElementById("start").disabled = false; document.getElementById("stop").disabled = true;
 }
@@ -210,6 +243,7 @@ function reset(){
 document.getElementById("start").onclick = start;
 document.getElementById("stop").onclick = stop;
 document.getElementById("reset").onclick = reset;
+document.getElementById("sample").onclick = playSample;
 document.getElementById("typed").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey){ e.preventDefault(); const v = e.target.value.trim(); if (v){ heard(v); e.target.value = ""; } } });
 renderTactics([]);
 </script>
