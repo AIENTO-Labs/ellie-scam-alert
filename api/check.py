@@ -1,10 +1,10 @@
 """Vercel serverless endpoint: POST /api/check {text, channel} -> Ellie's verdict from Claude.
 
 Deploy: import the repo in Vercel, set ANTHROPIC_API_KEY in the project's environment
-variables, deploy. The static app in app/ is served at the root (see vercel.json), so
-https://<project>.vercel.app/live.html and /index.html score through Claude with no setup.
-The response carries CORS headers, so the GitHub Pages copies can call it with
-?api=https://<project>.vercel.app/api/check as well.
+variables, deploy. The repo is served as static files (see vercel.json for the short
+redirects), so https://ellie.aiento.eu/app/live.html and /app/ score through Claude with
+no setup. The response carries CORS headers, so the GitHub Pages copies call the same
+endpoint (ELLIE_API in app/live.html and app/index.html, or ?api=... on the URL).
 """
 import json
 import os
