@@ -5,18 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ellie</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Bricolage+Grotesque:wght@600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="brand/ellie-tokens.css">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <style>
-:root{--bg:#F3F6F5;--surface:#FFFFFF;--ink:#12201E;--muted:#5E6E6B;--line:#DDE5E3;--teal:#0E6B60;--teal-soft:#E1F0ED;--low:#2F9E62;--watch:#C98A0E;--high:#E0661F;--scam:#D2372B;--focus:#0E6B60}
-@media (prefers-color-scheme:dark){:root{--bg:#0F1716;--surface:#172221;--ink:#E8F0EE;--muted:#9DB0AC;--line:#2A3836;--teal:#3FB3A2;--teal-soft:#1D3431;--focus:#3FB3A2}}
+/* Colours come from the brand kit (brand/ellie-tokens.css). --teal is the brand colour: navy on light, brass on dark. */
+:root{--bg:var(--ellie-parchment);--surface:var(--ellie-surface);--ink:var(--ellie-ink);--muted:var(--ellie-ink-soft);--line:var(--ellie-line);--teal:var(--ellie-navy);--on-teal:#FFFDF8;--teal-soft:#E6ECEF;--low:var(--ellie-safe);--watch:var(--ellie-careful);--high:#A4501A;--scam:var(--ellie-scam);--focus:var(--ellie-brass)}
+@media (prefers-color-scheme:dark){:root{--teal:var(--ellie-brass);--on-teal:#0E2A3B;--teal-soft:#14384D;--high:#F59A5E}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.6 Figtree,system-ui,sans-serif}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.6 var(--ellie-font-body)}
 .wrap{max-width:1080px;margin:0 auto;padding:24px 16px 64px}
 header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:24px}
-.brand{display:flex;align-items:center;gap:12px;font:600 28px/1 'Bricolage Grotesque',Figtree,sans-serif;color:var(--teal)}
-.blob{width:40px;height:40px;border-radius:50%;background:var(--teal);box-shadow:inset -6px -6px 0 rgba(0,0,0,.12)}
+.brand{display:flex;align-items:center;gap:12px;font:800 30px/1 var(--ellie-font-display);letter-spacing:-.02em;color:var(--ink)}
+.brand img{width:44px;height:44px}
 .status{font-size:15px;color:var(--muted)}
-h1{font:600 clamp(28px,4vw,40px)/1.15 'Bricolage Grotesque',Figtree,sans-serif;margin:8px 0 8px;max-width:22ch}
+h1{font:700 clamp(28px,4vw,40px)/1.15 var(--ellie-font-display);margin:8px 0 8px;max-width:22ch}
 .lead{color:var(--muted);max-width:60ch;margin:0 0 24px}
 .grid{display:grid;grid-template-columns:1.1fr .9fr;gap:24px;align-items:start}
 @media (max-width:820px){.grid{grid-template-columns:1fr}}
@@ -28,13 +33,13 @@ textarea:focus,button:focus-visible{outline:3px solid var(--focus);outline-offse
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
 .chip{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;font-size:15px;cursor:pointer}
 .chip:hover{border-color:var(--teal)}
-.primary{background:var(--teal);color:#fff;border:0;border-radius:14px;padding:16px 28px;font:600 20px Figtree,sans-serif;cursor:pointer;width:100%}
+.primary{background:var(--teal);color:var(--on-teal);border:0;border-radius:14px;padding:16px 28px;font:600 20px var(--ellie-font-body);cursor:pointer;width:100%}
 .primary:active{transform:translateY(1px)}
 .primary[disabled]{opacity:.6;cursor:wait}
 .err{color:var(--scam);font-size:15px;min-height:1.4em;margin-top:8px}
 .empty{color:var(--muted)}
-.score{display:flex;align-items:baseline;gap:8px;font:600 64px/1 'Bricolage Grotesque',sans-serif}
-.score small{font:500 20px Figtree;color:var(--muted)}
+.score{display:flex;align-items:baseline;gap:8px;font:800 64px/1 var(--ellie-font-display)}
+.score small{font:500 20px var(--ellie-font-body);color:var(--muted)}
 .band{font-weight:600;font-size:22px;margin:4px 0 12px}
 .bar{display:grid;grid-template-columns:30fr 30fr 20fr 20fr;gap:4px;margin:8px 0 4px;position:relative}
 .bar span{height:10px;border-radius:999px;opacity:.35}
@@ -46,10 +51,10 @@ ul.tactics li{padding:8px 0;border-top:1px solid var(--line);font-size:16px}
 ul.tactics b{display:block}
 ul.tactics q{color:var(--muted)}
 .actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
-.ghost{border:1px solid var(--teal);color:var(--teal);background:transparent;border-radius:14px;padding:12px 18px;font:600 16px Figtree;cursor:pointer}
+.ghost{border:1px solid var(--teal);color:var(--teal);background:transparent;border-radius:14px;padding:12px 18px;font:600 16px var(--ellie-font-body);cursor:pointer}
 .sent{color:var(--low);font-size:15px;margin-top:8px}
 .engine{font-size:13px;color:var(--muted);margin-top:16px}
-h2{font:600 26px/1.2 'Bricolage Grotesque',Figtree,sans-serif;margin:48px 0 8px}
+h2{font:700 26px/1.2 var(--ellie-font-display);margin:48px 0 8px}
 .frame{width:100%;aspect-ratio:16/10;border:0;border-radius:14px;background:var(--surface)}
 @media (prefers-reduced-motion:no-preference){.result{animation:in .35s ease-out}@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}}
 </style>
@@ -57,7 +62,7 @@ h2{font:600 26px/1.2 'Bricolage Grotesque',Figtree,sans-serif;margin:48px 0 8px}
 <body>
 <div class="wrap">
   <header>
-    <div class="brand"><div class="blob" aria-hidden="true"></div>Ellie</div>
+    <div class="brand"><img src="brand/logo.png" alt=""><span class="ellie-wordmark"><span class="ellie-sr">Ellie</span><span aria-hidden="true">Ell<span class="ellie-i">ı</span>e</span></span></div>
     <div class="status" id="engineStatus">Your ally against scams</div>
   </header>
 

@@ -1,0 +1,55 @@
+/* Ellie brand tokens (final). Fonts from direction A, colours from direction B.
+   Fonts: <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap"> */
+:root {
+  /* Brand */
+  --ellie-navy: #0E2A3B;        /* backgrounds, text, primary buttons */
+  --ellie-brass: #C9A24A;       /* accents; primary button on navy */
+  --ellie-brass-text: #8A6A22;  /* brass for text on light backgrounds */
+  --ellie-parchment: #F4F1E8;   /* light page background */
+  --ellie-seal-red: #8E1B12;    /* scam warnings only */
+  --ellie-surface: #FFFDF8;     /* cards on parchment */
+  --ellie-ink: #0E2A3B;         /* body text on light */
+  --ellie-ink-soft: #4C5D66;    /* secondary text on light */
+  --ellie-line: #E4DDCC;        /* borders on light */
+
+  /* Verdicts: always icon + word + colour, never colour alone */
+  --ellie-safe: #155C37;    --ellie-safe-wash: #DCEFE3;
+  --ellie-careful: #6E4300; --ellie-careful-wash: #FBEBC7; --ellie-careful-mark: #E3A21A;
+  --ellie-scam: #8E1B12;    --ellie-scam-wash: #F9DAD6;
+
+  /* Type */
+  --ellie-font-display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;  /* headlines, wordmark (700-800) */
+  --ellie-font-body: "Atkinson Hyperlegible", Verdana, system-ui, sans-serif;
+  --ellie-text-body: 1.25rem;   /* 20px in the app. Never below 16px. */
+  --ellie-text-lead: 1.5rem;    /* 24px */
+  --ellie-text-title: 2rem;     /* 32px verdict headline */
+  --ellie-leading: 1.5;
+
+  /* Shape and touch */
+  --ellie-radius: 14px;
+  --ellie-radius-card: 20px;
+  --ellie-tap: 56px;            /* minimum height of anything tappable */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ellie-parchment: #0A1F2B;   /* page */
+    --ellie-surface: #0F2B3B;     /* cards */
+    --ellie-ink: #F4F1E8;
+    --ellie-ink-soft: #A9B8BF;
+    --ellie-line: #21404F;
+    --ellie-brass-text: #D9B45E;
+    --ellie-safe: #6BD6A0;    --ellie-safe-wash: #12301F;
+    --ellie-careful: #F6C55E; --ellie-careful-wash: #33280E;
+    --ellie-scam: #FF8E80;    --ellie-scam-wash: #3B1714;
+  }
+}
+
+/* Wordmark with the gold dot on the i.
+   Markup: <span class="ellie-wordmark"><span class="ellie-sr">Ellie</span><span aria-hidden="true">Ell<span class="ellie-i">ı</span>e</span></span>
+   (the i is the dotless ı, U+0131; the gold dot is drawn by CSS) */
+.ellie-wordmark { font-family: var(--ellie-font-display); font-weight: 800; letter-spacing: -0.02em; }
+.ellie-i { position: relative; display: inline-block; line-height: .9; }
+.ellie-i::after { content: ""; position: absolute; left: 50%; bottom: .655em; width: .19em; height: .19em;
+  border-radius: 50%; background: var(--ellie-brass); transform: translateX(-50%); }
+.ellie-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

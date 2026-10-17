@@ -1,32 +1,41 @@
-/* Ellie brand. Swap the values here (and brand/logo.svg) to rebrand the whole call demo.
-   Tints, glows and highlight fills are mixed from these, so they follow automatically. */
-@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap");
+/* Ellie brand for the call demo. The official tokens are in brand/ellie-tokens.css (from the brand kit);
+   this file maps them onto the demo. Tints, glows and highlight fills are mixed from these, so they follow automatically.
+   Logo: brand/logo.png (navy badge, for light screens) and brand/icon.png (full-bleed, for the round avatar). */
+@import url("https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap");
 
 :root {
   /* brand */
-  --brand: #0E6B60;          /* logo, Ellie's bubble, done actions, wordmark */
-  --brand-tint: #E1F0ED;     /* Rose's bubbles, brand pills */
-  --ellie-a: #7CF0D6;        /* Ellie's outline gradient: start */
-  --ellie-b: #2FC4A6;        /*                           middle (also the glow) */
-  --ellie-c: #5B8CFF;        /*                           end */
+  --brand: #0E2A3B;          /* navy: Ellie's bubble, done actions, wordmark */
+  --brand-tint: #E6ECEF;     /* Hilde's bubbles, brand pills */
+  --brass: #C9A24A;          /* accent: the dot on the i */
+  --ellie-a: #FDD9B5;        /* Ellie's outline gradient: start (the logo's cream) */
+  --ellie-b: #C9A24A;        /*                           middle, brass (also the glow) */
+  --ellie-c: #8A6A22;        /*                           end, deep brass */
 
   /* neutrals */
-  --ground: #F3F6F5;         /* stage background */
-  --surface: #FFFFFF;        /* cards */
-  --ink: #12201E;            /* text */
-  --muted: #5E6E6B;          /* labels, secondary text */
-  --line: #DDE5E3;           /* borders */
-  --bubble: #EEF2F1;         /* caller's bubbles */
-  --letterbox: #E6ECEA;      /* around the stage when the box isn't 16:10 */
+  --ground: #F4F1E8;         /* parchment: stage background */
+  --surface: #FFFDF8;        /* cards */
+  --ink: #0E2A3B;            /* text */
+  --muted: #4C5D66;          /* labels, secondary text */
+  --line: #E4DDCC;           /* borders */
+  --bubble: #ECE6D8;         /* caller's bubbles */
+  --letterbox: #E9E3D6;      /* around the stage when the box isn't 16:10 */
 
-  /* risk levels (score bands: under 30, 30 to 59, 60 to 79, 80 and over) */
-  --low: #2F9E62;
-  --watch: #C98A0E;
-  --high: #E0661F;
-  --scam: #D2372B;
+  /* risk levels (score bands: under 30, 30 to 59, 60 to 79, 80 and over).
+     Low, watch and scam are the brand's verdict colours; high sits between watch and seal red. */
+  --low: #155C37;
+  --watch: #E3A21A;
+  --high: #C0601A;
+  --scam: #8E1B12;
 
   /* type */
-  --f-display: "Bricolage Grotesque", "Figtree", system-ui, sans-serif;   /* big numbers, wordmark */
-  --f-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;  /* everything you read */
-  --f-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;  /* labels, timers */
+  --f-display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;          /* big numbers, wordmark */
+  --f-body: "Atkinson Hyperlegible", Verdana, system-ui, sans-serif;                 /* everything you read */
+  --f-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;             /* labels, timers */
 }
+
+/* Wordmark: "Ellie" with a brass dot on the i (the i is the dotless ı, U+0131) */
+.ellie-i { position: relative; display: inline-block; line-height: .9; }
+.ellie-i::after { content: ""; position: absolute; left: 50%; bottom: .655em; width: .19em; height: .19em;
+  border-radius: 50%; background: var(--brass); transform: translateX(-50%); }
+.ellie-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

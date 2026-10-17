@@ -47,7 +47,7 @@ Browsers only play sound after a click or key press on the page, so start the de
 
 ## Rebrand
 
-Edit `brand/brand.css` (colours, fonts) and replace `brand/logo.svg`. Everything else follows. See [UI-SPEC.md](UI-SPEC.md).
+The official brand kit is in the repo's top-level `brand/` folder. `brand/brand.css` maps its tokens (`brand/ellie-tokens.css`) onto the demo; the logo is `brand/logo.png` (navy badge) and `brand/icon.png` (round avatar on Anna's phone). Change those and everything else follows. See [UI-SPEC.md](UI-SPEC.md).
 
 ## Change the call
 

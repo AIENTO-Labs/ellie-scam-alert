@@ -36,6 +36,7 @@ Audience: older adults (65+) and anyone vulnerable to phone scams, in Germany fi
 | `docs/` | João | decisions, scoring, architecture, demo script, reporting, tasks |
 | `demo/` | Jonno | `demo.mp4` |
 | `slides/` | Gamei, Anna | pitch slides for the finals |
+| `brand/` | design | official brand kit: logo, colours, fonts, brand guide. Read only |
 
 Background for everything above: `notes/session-context.md`.
 
