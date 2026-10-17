@@ -21,7 +21,7 @@ Scam calls aimed at older people use urgency, authority and secrecy: a fake bank
 - **Intercepts:** above the top threshold it lowers the caller's audio, cuts in with a spoken warning, starts recording and alerts a family member.
 - **Advises:** tells the user what to do next (hang up, call the bank on the number on the card) and answers "was that real?" after the call.
 - **Reports:** texts the family with what happened and prepares a report for the police, the Bundesnetzagentur or the bank. See [docs/reporting.md](docs/reporting.md).
-- **Covers more than calls:** email, SMS and WhatsApp run through the same scoring model. Desktop, mobile and landline are in scope; the demo shows a call on the web app.
+- **Covers more than calls:** SMS, WhatsApp and email go through the same Claude scorer in the Ask Ellie box. Desktop, mobile and landline are in scope.
 
 Scoring model and thresholds: [docs/scoring.md](docs/scoring.md)
 
@@ -37,14 +37,23 @@ Prompts live in [`prompts/`](prompts/).
 ## How to run it
 
 ```bash
-cp .env.example .env    # paste your ANTHROPIC_API_KEY into .env
+cp .env.example .env              # paste your ANTHROPIC_API_KEY into .env
 pip install anthropic
-python backend/scoring/score.py data/scam-transcripts/fake-police.md            # scorer with Claude
-python backend/scoring/score.py data/scam-transcripts/fake-police.md --offline  # rules only
-# call screen and call flow: to be added by Jonno and Ekaterina
+python backend/server.py          # open http://localhost:8000
 ```
 
-**Live link (if any):** to be added
+The web app (`app/index.html`) has two parts:
+
+- **Ask Ellie:** paste an SMS, WhatsApp or email and get a 0 to 100 scam score, the tactics found, a plain-language reason and what to do next. Uses Claude when the server has a key; falls back to built-in rules otherwise, so it always works.
+- **Call protection:** Jonno's simulated scam call (`app/call-demo`), embedded. Live transcript, score, Ellie's private warning at 80, text to the family.
+
+Score a call transcript from the command line:
+
+```bash
+python backend/scoring/score.py data/scam-transcripts/fake-police-rose.md --offline
+```
+
+**Demo video:** `demo/call-demo.mp4`
 
 ## Screenshots / demo
 
