@@ -1,44 +1,92 @@
-# Ellie
+<p align="center">
+  <img src="brand/logo/ellie-logo-on-navy.png" alt="Ellie logo" width="128" height="128">
+</p>
 
-**One line:** Ellie (from "elderly ally") is an AI companion that listens to calls with older adults and other people vulnerable to scams, scores the scam risk live, cuts in with a warning before money moves, alerts the family and prepares a report for the authorities.
+<h1 align="center">Ellie</h1>
 
-**Ellie answers first. Warns only you. Tells your family.**
+<p align="center">
+  <strong>Ellie answers first. Warns only you. Tells your family.</strong><br>
+  An AI ally that protects older adults from scam calls, live.
+</p>
 
-- Try it: [Ask Ellie](https://claude.ai/artifact/FhAiZYWzYGdkVUK1qzXKMR) (paste a message, Claude answers)
-- Watch it: [2-minute demo video](https://drive.google.com/file/d/12LQO1TQQdEMnXaLGRYHTciPo-H4UdPCD/view?usp=sharing)
-- Run it: see "How to run it" below
+<p align="center">
+  <a href="https://claude.ai/artifact/FhAiZYWzYGdkVUK1qzXKMR"><img alt="Try Ask Ellie" src="https://img.shields.io/badge/Try_it-Ask_Ellie-1F2F45?style=for-the-badge"></a>
+  <a href="https://drive.google.com/file/d/11O24gQOdhJmWJ1RnxpbtBoRRiZifuRes/view?usp=sharing"><img alt="Watch the 2-minute demo" src="https://img.shields.io/badge/Watch-2--min_demo-C9A15B?style=for-the-badge"></a>
+  <a href="#-run-it"><img alt="Run it" src="https://img.shields.io/badge/Run_it-locally-F3DEC4?style=for-the-badge"></a>
+</p>
 
-## Audience, problem, demo (one sentence each)
+<p align="center">
+  <img alt="Claude Haiku" src="https://img.shields.io/badge/Claude-Haiku_·_Sonnet-D97757">
+  <img alt="Node.js" src="https://img.shields.io/badge/backend-Node.js-339933">
+  <img alt="Python" src="https://img.shields.io/badge/scorer-Python-3776AB">
+  <img alt="Tests" src="https://img.shields.io/badge/tests-21_passing-2EA44F">
+  <img alt="Privacy" src="https://img.shields.io/badge/privacy-no_audio_stored-555">
+</p>
 
-1. **Who:** older adults (65+) and anyone vulnerable to phone scams, plus the protectors who look out for them: family, carers or a trusted organisation.
-2. **Their problem with AI today:** AI is used against them (cloned voices, scripted scam calls) while they have no AI on their side, and phone calls leave them the least time to think.
-3. **What the demo lets them do:** take a call with Ellie listening in, which spots a scam call as it happens, warns them in plain speech, and tells their family.
+---
 
-## The problem
+**Ellie** (from *elderly ally*) is an AI companion that listens to calls with older adults and other people vulnerable to scams. It scores the scam risk live, cuts in with a warning before money moves, alerts the family, and prepares a report for the authorities.
 
-Scam calls aimed at older people use urgency, authority and secrecy: a fake bank fraud department, police or tax office, or a relative "arrested" and needing money. Consumers in 42 countries lost roughly $442 billion to scams in the past year, and 57% of adults surveyed were targeted ([GASA Global State of Scams 2025](https://www.feedzai.com/blog/gasa-global-state-of-scams-report/)). In Germany the fake-police call (falsche Polizeibeamte), the grandchild trick (Enkeltrick) and the shock call (Schockanruf) are the patterns police warn about most, and they are aimed at exactly the people with the least time to think on the phone.
+| | |
+|---|---|
+| 👵 **Who** | Older adults (65+) and anyone vulnerable to phone scams, plus the people who look out for them: family, carers or a trusted organisation. |
+| ⚠️ **Their problem with AI today** | AI is used *against* them (cloned voices, scripted scam calls) while they have no AI on their side, and a phone call leaves them the least time to think. |
+| 🛡️ **What the demo shows** | A call with Ellie listening in: it spots the scam as it happens, warns the user in plain speech, and tells their family. |
 
-## What it does
+## 📉 The problem
 
-- **Prevents:** announces at the start of the call that it is protected and may be recorded, which serves as the recording notice in Germany and also deters scammers (exact legal wording to be confirmed with counsel).
-- **Detects:** transcribes the call live, enriches it (unknown number, origin, first contact) and scores scam risk from 0 to 100.
-- **Intercepts:** above the top threshold it lowers the caller's audio, cuts in with a spoken warning, starts recording and alerts a family member.
-- **Advises:** tells the user what to do next (hang up, call the bank on the number on the card) and answers "was that real?" after the call.
-- **Reports:** texts the family with what happened and prepares a report for the police, the Bundesnetzagentur or the bank. See [docs/reporting.md](docs/reporting.md).
-- **Covers more than calls:** SMS, WhatsApp and email go through the same Claude scorer in the Ask Ellie box. Desktop, mobile and landline are in scope.
+Scam calls aimed at older people use **urgency, authority and secrecy**: a fake bank fraud department, police or tax office, or a relative "arrested" and needing money.
 
-Scoring model and thresholds: [docs/scoring.md](docs/scoring.md)
+<table>
+  <tr>
+    <td align="center" width="25%"><h2>$1.03&nbsp;T</h2>stolen by scammers worldwide in one year; only <b>4%</b> of victims get their money back</td>
+    <td align="center" width="25%"><h2>€12&nbsp;B</h2>lost by households in Germany in one year; only <b>41%</b> of victims report it</td>
+    <td align="center" width="25%"><h2>+64%</h2>losses to fake police officers in Germany: <b>€49.5&nbsp;M</b> in 2025, over €10,000 per case</td>
+    <td align="center" width="25%"><h2>60+</h2>the age police call the "ideal victims" of shock calls</td>
+  </tr>
+</table>
 
-## How Claude is used
+- **Worldwide:** scammers took **$1.03 trillion** in one year. Phone calls and text messages are their main way in, and only **4%** of victims get their money back ([GASA & Feedzai, Global State of Scams 2024](https://gasa.org/knowledge-base/blog/global-state-of-scams-report-2024-1-trillion-stolen-in-12-months-gasa-feedzai)).
+- **Germany:** households lost an estimated **€12 billion** in one year. 66% of adults met a scam, only **41%** of victims report it, and 56% are scammed more than once ([GASA & Worldline, State of Scams in Germany 2026](https://gasa.org/knowledge-base/blog/scams-continue-to-rise-in-germany-two-in-three-adults-encountered-a-scam-in-the-past-year)).
+- **The fake-police call:** fake police officers took **€49.5 million** in Germany in 2025, up **64%** from €30.1 million in 2024, across 4,646 cases. Shock calls and the grandchild trick took another €49.0 million ([BKA via Tagesspiegel](https://www.tagesspiegel.de/gesellschaft/panorama/kriminalitat-schaden-durch-falsche-polizisten-stark-gestiegen-15918285.html)).
+- **Who is targeted:** police classify shock calls as crimes aimed at seniors and call people over 60 "ideal victims" ([LKA Hessen via hessenschau](https://www.hessenschau.de/panorama/erfolgreiche-praevention-schockanrufer-in-hessen-finden-weniger-opfer-v1,schockanrufe-hessen-102.html)). Scammers search phone books for old-fashioned first names and short landline numbers ([Polizei NRW](https://polizei.nrw/sites/default/files/2023-09/formular_aenderung_loeschung-des-telefonbucheintrages.pdf)) and fake the caller ID, even 110.
 
-- Reads the live transcript chunk by chunk (Claude Haiku) and returns a scam probability, the tactics it sees with quoted evidence, and a one-line warning. A rules layer runs alongside so the demo never depends on one API call. See [docs/scoring.md](docs/scoring.md).
-- Writes the post-call family text and the authority report (Claude Sonnet).
-- Writes the spoken warning and the next-step advice in plain language for an older user.
-- Powers the companion chat after the call ("was that real?").
+## ✨ What Ellie does
 
-Prompts live in [`prompts/`](prompts/).
+| | Step | What happens |
+|---|---|---|
+| 🔔 | **Prevents** | Announces at the start of the call that it is protected and may be recorded. This is the recording notice in Germany and also deters scammers *(exact legal wording to be confirmed with counsel)*. |
+| 🔍 | **Detects** | Transcribes the call live, enriches it (unknown number, origin, first contact) and scores the scam risk from 0 to 100. |
+| ✋ | **Intercepts** | Above the top threshold it lowers the caller's audio, cuts in with a spoken warning that only the user hears, starts recording and alerts a family member. |
+| 💬 | **Advises** | Tells the user what to do next (hang up, call the bank on the number on the card) and answers *"was that real?"* after the call. |
+| 📝 | **Reports** | Texts the family what happened and prepares a report for the police, the Bundesnetzagentur or the bank. See [docs/reporting.md](docs/reporting.md). |
+| 📱 | **Covers more than calls** | SMS, WhatsApp and email go through the same Claude scorer in the Ask Ellie box. Desktop, mobile and landline are in scope. |
 
-## How to run it
+Scoring model and thresholds: **[docs/scoring.md](docs/scoring.md)**
+
+## 🧠 How Claude is used
+
+```
+ Call audio ─► speech to text ─► Claude Haiku: scam probability + tactics + quoted evidence
+                                        │            ▲
+                                        │     rules layer runs alongside (demo never depends on one API call)
+                                        ▼
+                       score 0–100 ─► warning to the user only ─► text to the family
+                                        │
+                                        ▼
+                       Claude Sonnet: family message · authority report · "was that real?" chat
+```
+
+- **Live scoring (Claude Haiku):** reads the transcript chunk by chunk and returns a scam probability, the tactics it sees with quoted evidence, and a one-line warning. A rules layer runs alongside so the demo never depends on one API call. See [docs/scoring.md](docs/scoring.md).
+- **After the call (Claude Sonnet):** writes the family text and the authority report.
+- **Plain language:** writes the spoken warning and the next-step advice for an older user.
+- **Companion chat:** answers *"was that real?"* after the call.
+
+All prompts live in [`prompts/`](prompts/).
+
+## 🚀 Run it
+
+**Web app + Python scorer**
 
 ```bash
 cp .env.example .env              # paste your ANTHROPIC_API_KEY into .env
@@ -46,33 +94,40 @@ pip install anthropic
 python backend/server.py          # open http://localhost:8000
 ```
 
-The web app (`app/index.html`) has two parts:
+The web app (`app/index.html`) has three parts:
 
-- **Ask Ellie:** paste an SMS, WhatsApp or email and get a 0 to 100 scam score, the tactics found, a plain-language reason and what to do next. Uses Claude when the server has a key; falls back to built-in rules otherwise, so it always works.
-- **Call protection:** Jonno's simulated scam call (`app/call-demo`), embedded. Live transcript, score, Ellie's private warning at 80, text to the family.
-- **Live call (`app/live.html`):** the laptop microphone is the phone line. Open it in Chrome, click "Answer the call", let someone play the caller or put a phone on speaker. Speech to text runs in the browser, each line is scored by the backend, and Ellie speaks the warning out loud at 80. Browsers without speech recognition get a typed fallback.
+| Part | What you can do |
+|---|---|
+| **Ask Ellie** | Paste an SMS, WhatsApp or email and get a 0–100 scam score, the tactics found, a plain-language reason and what to do next. Uses Claude when the server has a key and falls back to built-in rules otherwise, so it always works. |
+| **Call protection** (`app/call-demo`) | Jonno's simulated scam call: live transcript, score, Ellie's private warning at 80, text to the family. |
+| **Live call** (`app/live.html`) | The laptop microphone is the phone line. Open it in Chrome, click *Answer the call*, and let someone play the caller or put a phone on speaker. Speech to text runs in the browser, the backend scores each line, and Ellie speaks the warning out loud at 80. Browsers without speech recognition get a typed fallback. |
 
-The product backend is `backend/` (Node): Twilio call flow, Deepgram transcripts, scoring, family alerts, reports, 21 tests. `npm install && npm start` in `backend/`, then the live page scores through it. See `backend/README.md`.
-
-Score a call transcript from the command line:
+**Score a transcript from the command line**
 
 ```bash
 python backend/scoring/score.py data/scam-transcripts/fake-police-rose.md --offline
 ```
 
-**Demo video:** `demo/call-demo.mp4`
+**Product backend (Node):** Twilio call flow, Deepgram transcripts, Claude scoring, family alerts, reports, security and 21 tests.
 
-## Screenshots / demo
+```bash
+cd backend && npm install && npm start
+```
 
-- Demo video (2 min): `demo/demo.mp4` [to be added]
-- Slides: `slides/` [to be added]
-- Demo script: [docs/demo-script.md](docs/demo-script.md)
+The live page then scores through it. Details in [backend/README.md](backend/README.md).
 
-## Repo layout
+## 🎬 Demo
+
+- ▶️ [2-minute demo video](https://drive.google.com/file/d/11O24gQOdhJmWJ1RnxpbtBoRRiZifuRes/view?usp=sharing) (also in `demo/call-demo.mp4`)
+- 🧪 [Ask Ellie, live](https://claude.ai/artifact/FhAiZYWzYGdkVUK1qzXKMR): paste a message, Claude answers
+- 🗒️ Demo script: [docs/demo-script.md](docs/demo-script.md)
+- 🖼️ Slides: `slides/` *(to be added)*
+
+## 🗂️ Repo layout
 
 ```
-app/         web app front end (companion, call screen)
-backend/     transcript, enrichment, scoring
+app/         web app: Ask Ellie, call screen, live call
+backend/     call flow, transcripts, enrichment, scoring, alerts, reports
 prompts/     Claude prompts
 data/        sample scam transcripts (fake data)
 docs/        scoring, architecture, demo script, decisions, tasks, reporting
@@ -81,21 +136,31 @@ demo/        demo video
 slides/      slide images and PDF for the finals
 ```
 
-## Team
+## 🔒 Privacy and safety
 
-| Name | Role / background |
+- No audio is stored, only text and scores, and call data is deleted automatically after 30 days.
+- Data stays in the EU in the production design.
+- Ellie never moves money or contacts the police by itself; it prepares, a person decides.
+- Claude's evidence is checked against the transcript, so it cannot invent quotes.
+- Recording and transcription need consent in Germany (§201 StGB); the legal setup will be reviewed with counsel before real use.
+
+## 👥 Team
+
+| Name | Role |
 |---|---|
-| João Diogo | Builder: scoring model, repo, README |
-| Jonno Hill | Product or design: call screen, demo video |
-| Gamei Chin | Domain Expert: Market Positioning, GTM |
-| Anna Son | Domain Expert: Branding, Story Telling |
-| Ekaterina | Builder: infrastructure, call flow, backend |
+| **João Diogo** | Founder: scoring model, repo, README |
+| **Jonno** | Product and design: call screen, demo video |
+| **Gamei Chin** | Pitch, storytelling, Ellie avatar |
+| **Anna Son** | Pitch, storytelling, Ellie avatar |
+| **Ekaterina** | Builder: infrastructure, call flow, backend |
 
-## Credits
+## 🙏 Credits
 
-- [Anthropic Claude](https://www.anthropic.com) (Haiku for live scoring, Sonnet for post-call reports) through the `anthropic` Python SDK
-- [ElevenLabs](https://elevenlabs.io) voices for Ellie, Hilde and the caller in the simulated call
-- [Twilio](https://www.twilio.com) and [Deepgram](https://deepgram.com) in the production design (not used in today's build)
+- [Anthropic Claude](https://www.anthropic.com): Haiku for live scoring, Sonnet for post-call reports, through the `anthropic` Python SDK
+- [ElevenLabs](https://elevenlabs.io): voices for Ellie, Hilde and the caller in the simulated call
+- [Twilio](https://www.twilio.com) and [Deepgram](https://deepgram.com): built into the production backend, not used in today's demo
 - [Figtree](https://fonts.google.com/specimen/Figtree) and [Bricolage Grotesque](https://fonts.google.com/specimen/Bricolage+Grotesque) from Google Fonts
 - Claude Code and Claude.ai helped write code and docs; the team made every product decision
-- Figures: [GASA Global State of Scams 2025](https://www.feedzai.com/blog/gasa-global-state-of-scams-report/)
+- Figures: GASA & Feedzai, Global State of Scams 2024; GASA & Worldline, State of Scams in Germany 2026; BKA Polizeiliche Kriminalstatistik 2025; LKA Hessen; Polizei NRW (links in [The problem](#-the-problem))
+
+<p align="center"><sub>Made with care for everyone who has ever picked up a call they shouldn't have trusted.</sub></p>
