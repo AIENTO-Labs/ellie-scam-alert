@@ -41,7 +41,7 @@ Drive it from the parent page:
 frame.contentWindow.postMessage({ type: 'ellie:play' }, '*');   // also ellie:pause, ellie:toggle, ellie:reset, ellie:seek (with t in seconds)
 ```
 
-It posts `{ type: 'ellie:phase', phase, t }` to the parent when the phase changes. The phases are `idle`, `ringing`, `announcing`, `live`, `detected`, `intervening` and `ended`.
+It posts `{ type: 'ellie:phase', phase, t }` to the parent when the phase changes. The phases are `idle`, `ringing`, `announcing`, `live`, `detected`, `intervening`, `ended` and `report`.
 
 Browsers only play sound after a click or key press on the page, so start the demo with a click.
 

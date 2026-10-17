@@ -154,6 +154,50 @@ mark.scam  { --hl: var(--hl-scam); --hc: var(--hc-scam); }
 .m-sum li time { font: 400 13px/1 var(--f-mono); color: var(--m-muted); }
 .m-sum li i { width: 10px; height: 10px; border-radius: 50%; background: var(--dot); }
 
+/* final screen: the incident report, over the whole stage */
+.m-rep { inset: 0; z-index: 8; background: var(--m-bg); padding: 26px 27px 22px; display: grid; grid-template-columns: 726px 1fr; grid-template-rows: auto 1fr;
+  column-gap: 21px; row-gap: 20px; border-radius: 14px; }
+.m-rep.off { transform: translateY(16px); }
+.m-rep .top { grid-column: 1 / -1; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
+.m-rep h2 { margin: 8px 0 4px; font: 800 34px/1.05 var(--f-display); letter-spacing: -.02em; }
+.m-rep .lede { margin: 0; font-size: 15px; color: var(--m-muted); }
+.m-rep .drafted { display: flex; gap: 9px; align-items: center; background: var(--m-surface); border: 1px solid var(--m-line); border-radius: 12px; padding: 9px 13px; font-size: 14px; margin-bottom: 20px; }
+.m-rep .drafted em { font: 600 11px/1.6 var(--f-mono); font-style: normal; color: var(--m-teal); background: var(--m-teal-soft); border-radius: 4px; padding: 0 6px; }
+.m-rep .main, .m-rep .card { background: var(--m-surface); border: 1px solid var(--m-line); border-radius: 14px; }
+.m-rep .main { padding: 22px 25px; display: grid; align-content: start; gap: 12px; }
+.m-rep .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 8px; }
+.m-rep .fact { background: var(--m-bg); border-radius: 10px; padding: 10px 13px; display: grid; gap: 3px; }
+.m-rep .fact span { font-size: 11.5px; color: var(--m-muted); }
+.m-rep .fact b { font-size: 15px; font-weight: 700; }
+.m-rep .fact.scam b { color: var(--scam); }
+.m-rep .row { display: flex; justify-content: space-between; align-items: baseline; }
+.m-rep .row small { font-size: 12px; color: var(--m-muted); }
+.m-rep .stmt { border: 1px solid var(--m-line); border-radius: 10px; padding: 13px 15px; font-size: 14.5px; line-height: 1.55; min-height: 116px; margin-bottom: 8px; }
+.m-rep .stmt .cur { display: inline-block; width: 2px; height: 1.05em; vertical-align: -2px; margin-left: 1px; background: var(--m-teal); animation: blink 1s steps(1) infinite; }
+.m-rep .ev { display: flex; flex-wrap: wrap; gap: 8px; }
+.m-rep .ev span { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--m-line); border-radius: 999px; padding: 6px 12px; font-size: 13px; }
+.m-rep .ev i { width: 7px; height: 7px; border-radius: 50%; background: var(--dot); }
+.m-rep .ev span.on { animation: rise .35s ease-out backwards; }
+.m-rep .side { display: grid; align-content: start; gap: 15px; }
+.m-rep .card { padding: 18px 20px; display: grid; gap: 10px; }
+.m-rep .dest { display: grid; gap: 3px; padding-bottom: 12px; border-bottom: 1px solid var(--m-line); }
+.m-rep .dest:last-child { border-bottom: 0; padding-bottom: 0; }
+.m-rep .dest b { font-size: 16px; font-weight: 700; }
+.m-rep .dest span { font-size: 12.5px; color: var(--m-muted); }
+.m-rep .dest.muted b { color: var(--m-muted); }
+.m-rep .dest.muted { grid-template-columns: 1fr auto; align-items: center; }
+.m-rep .dest .chip { grid-row: 1 / 3; grid-column: 2; font: 600 11px/1 var(--f-mono); text-transform: uppercase; letter-spacing: .04em; color: var(--low); background: var(--tint-low); padding: 6px 8px; border-radius: 6px; }
+.m-rep .btn { margin-top: 7px; height: 42px; border-radius: 10px; display: grid; place-items: center; font-weight: 700; font-size: 15px; border: 2px solid var(--m-teal); color: var(--m-teal); }
+.m-rep .btn.primary { background: var(--m-teal); color: #fff; }
+.m-rep .btn.primary.cue { animation: cta 1.8s ease-out 2; }
+.m-rep .who-sends p { margin: 0; font-size: 14.5px; line-height: 1.45; }
+.m-rep .check { display: flex; align-items: center; gap: 10px; font-size: 14.5px; }
+.m-rep .check i { width: 19px; height: 19px; border-radius: 5px; background: var(--m-teal); display: grid; place-items: center; }
+.m-rep .note { font-size: 12px; color: var(--m-muted); padding-left: 3px; }
+.m-rep:not(.off) .fact { animation: rise .4s ease-out backwards; }
+.m-rep:not(.off) .side > * { animation: rise .45s ease-out backwards; }
+@keyframes cta { 0% { box-shadow: 0 0 0 0 color-mix(var(--mix), var(--brass) 70%, transparent); } 100% { box-shadow: 0 0 0 14px transparent; } }
+
 /* right column */
 .m-side { display: grid; grid-template-rows: auto 1fr auto; gap: 12px; min-height: 0; }
 .m-risk { padding: 14px 18px; display: grid; gap: 8px; transition: box-shadow .3s; }
@@ -262,6 +306,7 @@ mark.scam  { --hl: var(--hl-scam); --hc: var(--hc-scam); }
   <footer class="m-pipe" id="pipe"></footer>
   <div class="m-dim" id="dim"></div>
   <div class="ov m-phone off" id="ovPhone"></div>
+  <div class="ov m-rep off" id="ovReport"></div>
   <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
     <linearGradient id="ellieGrad" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" style="stop-color:var(--ellie-a)"/><stop offset=".45" style="stop-color:var(--ellie-b)"/><stop offset="1" style="stop-color:var(--ellie-c)"/>
@@ -311,7 +356,9 @@ const smsT = coach.start + 1.4;
 const last = lines[lines.length - 1];
 const endT = last.start + last.dur + 0.5;
 const summaryT = endT + 2.2;
-const TOTAL = summaryT + 1.5;
+const reportT = summaryT + 4.5;                // final screen: the incident report Ellie drafted
+const REP = { stmt: reportT + 1.3, stmtDur: 4.2, ev: reportT + 5.8, cue: reportT + 6.6 };
+const TOTAL = reportT + 10;
 const flagT = {};                              // tactic -> time Claude first flagged it
 for (const c of checks) for (const k of c.tactics) flagT[k] ??= c.t;
 const tacticLevel = Object.fromEntries(S.tactics.map(x => [x.k, x.level]));
@@ -319,7 +366,7 @@ const actionAt = { warn: coach.start, text: smsT, end: endT };
 
 const clips = [RING, ...lines.map(l => ({ id: l.id, start: l.start, dur: l.dur })),
   { id: 'sms', start: smsT, dur: A.sms ?? 0.45 }, { id: 'hangup', start: endT, dur: A.hangup ?? 2.4 }];
-const BEATS = [0, RING.start, ann.start, connectT, ...checks.map(c => c.t), coach.start, endT, summaryT];
+const BEATS = [0, RING.start, ann.start, connectT, ...checks.map(c => c.t), coach.start, endT, summaryT, reportT];
 
 // ---------- helpers ----------
 const $ = id => document.getElementById(id);
@@ -416,11 +463,11 @@ function scoreAt(T) {
 
 function render(T) {
   const phase = T < RING.start ? 'idle' : T < ann.start ? 'ringing' : T < connectT ? 'announcing' : T < detectT ? 'live'
-    : T < coach.start ? 'detected' : T < endT ? 'intervening' : 'ended';
+    : T < coach.start ? 'detected' : T < endT ? 'intervening' : T < reportT ? 'ended' : 'report';
 
   // header
   const PILL = { idle: ['', 'Protected'], ringing: ['ring', 'Incoming call'], announcing: ['live', 'Announcing'], live: ['live', 'Live'],
-    detected: ['alert', 'Scam detected'], intervening: ['alert', 'Intervening'], ended: ['ended', 'Call ended'] }[phase];
+    detected: ['alert', 'Scam detected'], intervening: ['alert', 'Intervening'], ended: ['ended', 'Call ended'], report: ['ended', 'Call ended'] }[phase];
   set($('pill'), 'p', phase, () => { $('pill').className = `m-pill ${PILL[0]}`; $('pill').lastElementChild.textContent = PILL[1]; });
   set($('timer'), 't', T < callStart ? '--:--' : fmt(Math.min(T, endT) - callStart), v => $('timer').textContent = v);
 
@@ -460,6 +507,13 @@ function render(T) {
   set($('ovIncoming'), 'o', phase === 'ringing', v => $('ovIncoming').classList.toggle('off', !v));
   set($('ovPhone'), 'o', T >= smsT && T < summaryT, v => $('ovPhone').classList.toggle('off', !v));
   set($('ovSummary'), 'o', T >= summaryT, v => { $('ovSummary').classList.toggle('off', !v); if (v) buildSummary(); });
+  set($('ovReport'), 'o', T >= reportT, v => { $('ovReport').classList.toggle('off', !v); if (v) buildReport(); });
+  if (T >= reportT) {
+    const shown = Math.ceil(stmtWords.length * clamp((T - REP.stmt) / REP.stmtDur)), typing = T >= REP.stmt - 0.4 && T < REP.stmt + REP.stmtDur + 0.8;
+    set($('repStmt'), 's', `${shown}|${typing}`, () => $('repStmt').innerHTML = esc(stmtWords.slice(0, shown).join(' ')) + (typing ? '<span class="cur"></span>' : ''));
+    $('ovReport').querySelectorAll('.ev span').forEach((el, i) => set(el, 'e', T >= REP.ev + i * 0.15, v => { el.style.visibility = v ? '' : 'hidden'; el.classList.toggle('on', v); }));
+    set($('repSend'), 'c', T >= REP.cue, v => $('repSend').classList.toggle('cue', v));
+  }
 
   // risk
   const score = T < connectT ? null : scoreAt(T);
@@ -540,6 +594,31 @@ function buildSummary() {
   $('ovSummary').innerHTML = `<div><span class="m-label">Call summary · just now</span><h3>Scam call stopped</h3></div>
     <div class="stats"><div><b>${fmt(endT - callStart)}</b><span>Call length</span></div><div><b style="color:var(--scam)">${peak}</b><span>Peak risk</span></div><div><b>€0</b><span>Money lost</span></div></div>
     <ol>${items.map(([t, dot, txt], i) => `<li style="animation-delay:${i * 60}ms"><time>${callRel(t)}</time><i style="--dot:${dot}"></i>${esc(txt)}</li>`).join('')}</ol>`;
+}
+
+const stmtWords = S.report.statement.split(' ');
+function buildReport() {
+  const R = S.report, len = fmt(endT - callStart), peak = Math.max(...checks.map(c => c.score));
+  const facts = R.facts.map(([k, v, cls], i) => `<div class="fact ${cls ?? ''}" style="animation-delay:${250 + i * 70}ms"><span>${esc(k)}</span><b>${esc(v.replace('{clock}', R.clock).replace('{length}', len))}</b></div>`).join('');
+  const ev = [[`Full transcript · ${len}`, 'var(--low)'], [`${Object.keys(flagT).length} tactics with quotes`, COL.high],
+    [`Risk timeline · peak ${peak}/100`, COL.scam], ['Caller number and time', 'var(--faint)']]
+    .map(([t, dot], i) => `<span id="repEv${i}" style="visibility:hidden"><i style="--dot:${dot}"></i>${esc(t)}</span>`).join('');
+  const dests = R.sendTo.map(d => `<div class="dest ${d.muted ? 'muted' : ''}"><b>${esc(d.name)}</b><span>${esc(d.sub)}</span>`
+    + (d.chip ? `<em class="chip">${esc(d.chip)}</em>` : `<div class="btn ${d.primary ? 'primary' : ''}" ${d.primary ? 'id="repSend"' : ''}>${esc(d.button)}</div>`) + '</div>').join('');
+  const TICK = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  $('ovReport').innerHTML = `<div class="top"><div><span class="m-label">Incident report · ready to send</span><h2>Report the scam call</h2>
+      <p class="lede">Ellie filled this in from the call. Check it, then send it in one tap.</p></div>
+      <div class="drafted"><em>Claude</em>Drafted from the transcript at ${fmt(endT - callStart + 2)}</div></div>
+    <div class="main"><span class="m-label">What happened</span><div class="facts">${facts}</div>
+      <div class="row"><span class="m-label">Statement for the police</span><small>Written in German · English shown</small></div>
+      <div class="stmt" id="repStmt"></div>
+      <span class="m-label">Evidence attached</span><div class="ev">${ev}</div></div>
+    <div class="side"><div class="card" style="animation-delay:350ms"><span class="m-label">Send to</span>${dests}</div>
+      <div class="card who-sends" style="animation-delay:500ms"><span class="m-label">Who sends it</span>
+        <p>Sent in ${esc(S.elder.first)}’s name. Ellie never sends a report without her OK.</p>
+        <div class="check"><i>${TICK}</i>${esc(S.family.name)} (${esc(S.family.relation)}) checks it first</div></div>
+      <div class="note" style="animation-delay:650ms">Demo · all names, numbers and times are invented</div></div>`;
+  for (const k of [...cache.keys()]) if (k.startsWith('rep')) cache.delete(k);   // fresh elements: re-apply their state
 }
 
 // ---------- audio ----------

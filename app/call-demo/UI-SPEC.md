@@ -64,10 +64,11 @@ Highlight fills for flagged phrases are mixed from the risk colours. Ellie's out
 | Ellie speaks | The whole stage dims and blurs slightly (0.6 s). Ellie's bubble pops in at full size (navy, white text) with a glow, and a gradient outline draws around it in 1.5 s, then shimmers slowly. A white pill above it reads "Ellie · only Hilde hears this". Her words type in. The dim lifts about 1 s after she finishes. |
 | Family alert | Anna's phone slides up over the right column (above the dim): a Messages-style screen with Ellie as the contact, "Text Message · Today 14:07" and a grey incoming bubble with the alert and Hilde's number. |
 | Call ended | A summary replaces the transcript: "Scam call stopped", call length, peak risk, €0 lost, and a timeline of what happened with times and coloured dots. |
+| Report | 4.5 s later the final screen covers the whole stage: "Report the scam call", the incident report Ellie drafted. Six fact tiles (type, what the caller said, money lost, when, number, demand), the statement for the police typing in, evidence chips popping in, and on the right where to send it (Berlin Police with the main "Review and send" button, which pulses twice in brass; Bundesnetzagentur; the bank, not needed) and who sends it (in Hilde's name, Anna checks it first). Its wording lives in `script.js` under `report`. |
 
 ## How it is driven
 
-- `script.js` holds the whole call: speakers and voices, every line, the phrases to highlight, and the scam checks (when each fires, the score, the tactics, Claude's reason, the summary line).
+- `script.js` holds the whole call: speakers and voices, every line, the phrases to highlight, the scam checks (when each fires, the score, the tactics, Claude's reason, the summary line), Anna's text and the final report.
 - `audio/durations.js` (generated) holds each clip's length; the timeline is built from it, so changing a line re-times everything.
 - The screen is a pure function of time: `render(t)` draws the exact state for any second, which is why scrubbing, beat jumps and the frame-perfect video export work.
 
@@ -77,4 +78,4 @@ Highlight fills for flagged phrases are mixed from the risk colours. Ellie's out
 <iframe src="call-demo/index.html?controls=0&bg=transparent" style="width:100%;aspect-ratio:16/10;border:0" allow="autoplay; fullscreen"></iframe>
 ```
 
-Control it with `postMessage({ type: 'ellie:play' | 'ellie:pause' | 'ellie:toggle' | 'ellie:reset' | 'ellie:seek', t })`. It posts `{ type: 'ellie:phase', phase }` back as the call moves through idle, ringing, announcing, live, detected, intervening and ended. Browsers only allow sound after a click inside the frame.
+Control it with `postMessage({ type: 'ellie:play' | 'ellie:pause' | 'ellie:toggle' | 'ellie:reset' | 'ellie:seek', t })`. It posts `{ type: 'ellie:phase', phase }` back as the call moves through idle, ringing, announcing, live, detected, intervening, ended and report. Browsers only allow sound after a click inside the frame.

@@ -58,4 +58,23 @@ window.ELLIE_SCRIPT = {
   ],
 
   sms: 'Possible scam call to Mum right now. Caller said he was police and asked for €2,000 in gift cards. Ellie warned her.',
+
+  // Final screen: the incident report Ellie drafts after the call. Call length, peak risk and tactic count come from the call above.
+  report: {
+    clock: '14:06',   // time of day the call started (Anna's text arrives at 14:07)
+    facts: [
+      ['Type', 'Fake police call'],
+      ['Caller said', '“Detective Weber”'],
+      ['Money lost', '€0'],
+      ['When', 'Today, {clock} · {length}'],
+      ['Number', 'Unknown, first contact'],
+      ['Demand', '€2,000 in gift cards', 'scam'],
+    ],
+    statement: 'A man called and said he was Detective Weber from the Berlin police fraud department. He said a gang had my name and bank details and my savings were at risk. He told me to act today, before the bank closed, and not to tell anyone, not even my family. He told me to buy €2,000 in Google Play cards and read him the codes. I did not buy anything and ended the call.',
+    sendTo: [
+      { name: 'Berlin Police', sub: 'Online police station · attempted fraud', button: 'Review and send', primary: true },
+      { name: 'Bundesnetzagentur', sub: 'Federal Network Agency · gets the number shut down', button: 'Report the number' },
+      { name: 'Bank · 116 116', sub: 'Not needed: no money or codes shared', chip: '€0 lost', muted: true },
+    ],
+  },
 };
