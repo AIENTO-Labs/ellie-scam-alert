@@ -8,7 +8,7 @@
 //         The first check at or above `threshold` triggers the intervention.
 
 window.ELLIE_SCRIPT = {
-  elder:  { name: 'Rose Miller', first: 'Rose', number: '+49 30 •••• 2118' },
+  elder:  { name: 'Hildegard Müller', first: 'Hilde', number: '+49 30 •••• 2118' },
   family: { name: 'Anna', relation: 'daughter' },
   caller: { number: '+49 30 5555 0142', place: 'Berlin' },
   threshold: 80,
@@ -31,7 +31,7 @@ window.ELLIE_SCRIPT = {
 
   lines: [
     { id: 'ann',   who: 'ellie', kind: 'announce', gap: 0, text: 'This call is protected by Ellie.' },
-    { id: 'c1',    who: 'caller', gap: 0.8, text: 'Good afternoon. Is this Mrs. Miller?' },
+    { id: 'c1',    who: 'caller', gap: 0.8, text: 'Good afternoon. Is this Mrs. Müller?' },
     { id: 'r1',    who: 'rose',   gap: 0.5, text: 'Yes, speaking. Who is this?' },
     { id: 'c2',    who: 'caller', gap: 0.4, text: 'This is Detective Weber, Berlin police, fraud department.',
       marks: [{ phrase: 'Detective Weber, Berlin police', tactic: 'auth' }] },
@@ -44,8 +44,8 @@ window.ELLIE_SCRIPT = {
     { id: 'c5',    who: 'caller', gap: 0.4, text: 'No one. Go to the shop now and buy €2,000 in Google Play cards. Then read me the codes.',
       say: 'No one. Go to the shop now and buy two thousand euros in Google Play cards. Then read me the codes.',
       marks: [{ phrase: 'buy €2,000 in Google Play cards', tactic: 'payment' }] },
-    { id: 'coach', who: 'ellie', kind: 'coach', gap: 2.0, text: 'Rose, this is Ellie. This sounds like a scam. Real police never ask for gift cards. You can hang up now.' },
-    { id: 'c6',    who: 'caller', gap: 0.5, text: 'Mrs. Miller? Are you still there?' },
+    { id: 'coach', who: 'ellie', kind: 'coach', gap: 2.0, text: 'Hilde, this is Ellie. This sounds like a scam. Real police never ask for gift cards. You can hang up now.' },
+    { id: 'c6',    who: 'caller', gap: 0.5, text: 'Mrs. Müller? Are you still there?' },
     { id: 'r5',    who: 'rose',   gap: 0.6, text: 'I’m not buying anything. Goodbye.' },
   ],
 

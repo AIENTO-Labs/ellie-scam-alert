@@ -25,7 +25,7 @@ Current values (the names are the variables in `brand/brand.css`):
 | `--line` | `#DDE5E3` | borders |
 | `--bubble` | `#EEF2F1` | caller's bubbles |
 | `--brand` | `#0E6B60` | Ellie brand: Ellie's bubble, done actions, wordmark |
-| `--brand-tint` | `#E1F0ED` | Rose's bubbles, brand pills |
+| `--brand-tint` | `#E1F0ED` | Hilde's bubbles, brand pills |
 | `--low` | `#2F9E62` | risk under 30 |
 | `--watch` | `#C98A0E` | risk 30 to 59 |
 | `--high` | `#E0661F` | risk 60 to 79 |
@@ -43,7 +43,7 @@ Highlight fills for flagged phrases are mixed from the risk colours. Ellie's out
 
 **Header.** Logo and "Ellie", elder's name and protected number, a status pill and the call timer. Pill states: Protected (teal), Incoming call (amber), Announcing / Live (green, dot blinks), Scam detected / Intervening (red, dot blinks), Call ended (grey).
 
-**Transcript.** Chat bubbles: caller on the left in grey with "Caller · number" above; Rose on the right in teal tint. Words stream in with a 0.35 s speech-to-text lag and a blinking cursor. The announcement is a dashed, centred system line. Newest line stays at the bottom.
+**Transcript.** Chat bubbles: caller on the left in grey with "Caller · number" above; Hilde on the right in teal tint. Words stream in with a 0.35 s speech-to-text lag and a blinking cursor. The announcement is a dashed, centred system line. Newest line stays at the bottom.
 
 **Flagged phrases.** When Claude flags a tactic, its phrase gets a highlight band centred on the letters that sweeps in left to right (0.5 s), and a small mono tag (AUTHORITY, URGENCY, SECRECY, GIFT CARDS) fades in floating just above the phrase. The tag never takes space in the sentence, so the text does not jump. Trailing punctuation stays outside the highlight.
 
@@ -51,7 +51,7 @@ Highlight fills for flagged phrases are mixed from the risk colours. Ellie's out
 
 **Tactics detected.** Every tactic Ellie looks for is always listed, greyed out, so viewers see what it watches for. A flagged tactic gets a coloured dot (with a ping) and its quote underneath, one line, truncated.
 
-**Actions.** Three tiles: Warn Rose privately, Text Anna (daughter), End the call. States: Ready at 80 (grey), Triggering… (red tint), Done mm:ss (teal).
+**Actions.** Three tiles: Warn Hilde privately, Text Anna (daughter), End the call. States: Ready at 80 (grey), Triggering… (red tint), Done mm:ss (teal).
 
 **Pipeline footer.** Call audio → Speech to text → Scam check → Action, each node lights green while it is working, plus "Simulated call" on the right so nobody thinks it is live.
 
@@ -60,8 +60,8 @@ Highlight fills for flagged phrases are mixed from the risk colours. Ellie's out
 | Moment | What happens |
 |---|---|
 | Incoming call | Card over the transcript: phone icon with pulsing rings, the number, "Unknown number · Berlin". Ring tone plays. |
-| Ellie speaks | The whole stage dims and blurs slightly (0.6 s). Ellie's bubble pops in at full size (teal, white text) with a glow, and a gradient outline draws around it in 1.5 s, then shimmers slowly. A white pill above it reads "Ellie · only Rose hears this". Her words type in. The dim lifts about 1 s after she finishes. |
-| Family alert | Anna's phone slides up over the right column (above the dim): a Messages-style screen with Ellie as the contact, "Text Message · Today 14:07" and a grey incoming bubble with the alert and Rose's number. |
+| Ellie speaks | The whole stage dims and blurs slightly (0.6 s). Ellie's bubble pops in at full size (teal, white text) with a glow, and a gradient outline draws around it in 1.5 s, then shimmers slowly. A white pill above it reads "Ellie · only Hilde hears this". Her words type in. The dim lifts about 1 s after she finishes. |
+| Family alert | Anna's phone slides up over the right column (above the dim): a Messages-style screen with Ellie as the contact, "Text Message · Today 14:07" and a grey incoming bubble with the alert and Hilde's number. |
 | Call ended | A summary replaces the transcript: "Scam call stopped", call length, peak risk, €0 lost, and a timeline of what happened with times and coloured dots. |
 
 ## How it is driven
