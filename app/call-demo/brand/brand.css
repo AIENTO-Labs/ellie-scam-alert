@@ -1,0 +1,32 @@
+/* Ellie brand. Swap the values here (and brand/logo.svg) to rebrand the whole call demo.
+   Tints, glows and highlight fills are mixed from these, so they follow automatically. */
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap");
+
+:root {
+  /* brand */
+  --brand: #0E6B60;          /* logo, Ellie's bubble, done actions, wordmark */
+  --brand-tint: #E1F0ED;     /* Rose's bubbles, brand pills */
+  --ellie-a: #7CF0D6;        /* Ellie's outline gradient: start */
+  --ellie-b: #2FC4A6;        /*                           middle (also the glow) */
+  --ellie-c: #5B8CFF;        /*                           end */
+
+  /* neutrals */
+  --ground: #F3F6F5;         /* stage background */
+  --surface: #FFFFFF;        /* cards */
+  --ink: #12201E;            /* text */
+  --muted: #5E6E6B;          /* labels, secondary text */
+  --line: #DDE5E3;           /* borders */
+  --bubble: #EEF2F1;         /* caller's bubbles */
+  --letterbox: #E6ECEA;      /* around the stage when the box isn't 16:10 */
+
+  /* risk levels (score bands: under 30, 30 to 59, 60 to 79, 80 and over) */
+  --low: #2F9E62;
+  --watch: #C98A0E;
+  --high: #E0661F;
+  --scam: #D2372B;
+
+  /* type */
+  --f-display: "Bricolage Grotesque", "Figtree", system-ui, sans-serif;   /* big numbers, wordmark */
+  --f-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;  /* everything you read */
+  --f-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;  /* labels, timers */
+}

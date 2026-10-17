@@ -5,16 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ellie · Call Demo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="brand/brand.css">
 <style>
 /* The demo is one 1200×750 stage, scaled to fit whatever box the shell gives it (iframe or div). */
 :root {
-  --f-display: "Bricolage Grotesque", "Figtree", system-ui, sans-serif;
-  --f-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --f-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
-  --m-bg: #F3F6F5; --m-surface: #FFFFFF; --m-ink: #12201E; --m-muted: #5E6E6B; --m-line: #DDE5E3; --m-teal: #0E6B60; --m-teal-soft: #E1F0ED;
-  --low: #2F9E62; --watch: #C98A0E; --high: #E0661F; --scam: #D2372B;
-  --letterbox: #E6ECEA;
+  /* every colour and font comes from brand/brand.css; these are local aliases and mixes */
+  --m-bg: var(--ground); --m-surface: var(--surface); --m-ink: var(--ink); --m-muted: var(--muted); --m-line: var(--line);
+  --m-teal: var(--brand); --m-teal-soft: var(--brand-tint);
+  --mix: in srgb;
+  --tint-low: color-mix(var(--mix), var(--low) 13%, white);
+  --tint-watch: color-mix(var(--mix), var(--watch) 14%, white);
+  --tint-scam: color-mix(var(--mix), var(--scam) 13%, white);
+  --hl-watch: color-mix(var(--mix), var(--watch) 30%, white); --hc-watch: color-mix(var(--mix), var(--watch) 70%, black);
+  --hl-high: color-mix(var(--mix), var(--high) 30%, white);   --hc-high: color-mix(var(--mix), var(--high) 70%, black);
+  --hl-scam: color-mix(var(--mix), var(--scam) 27%, white);   --hc-scam: color-mix(var(--mix), var(--scam) 75%, black);
+  --glow: color-mix(var(--mix), var(--ellie-b) 75%, transparent);
+  --soft-line: color-mix(var(--mix), var(--muted) 30%, white);
+  --faint: color-mix(var(--mix), var(--muted) 55%, white);
 }
 html, body { height: 100%; margin: 0; }
 body { background: var(--letterbox); overflow: hidden; font-family: var(--f-body); }
@@ -29,17 +36,17 @@ body.transparent { background: transparent; }
 /* header */
 .m-top { display: flex; align-items: center; gap: 18px; padding: 0 28px; background: var(--m-surface); border-bottom: 1px solid var(--m-line); }
 .m-logo { display: flex; align-items: center; gap: 10px; font: 700 23px/1 var(--f-display); color: var(--m-teal); letter-spacing: -.01em; }
-.m-logo svg { width: 30px; height: 30px; }
+.m-logo svg, .m-logo img { width: 30px; height: 30px; }
 .m-sep { width: 1px; height: 30px; background: var(--m-line); }
 .m-who b { display: block; font-size: 17px; }
 .m-who span { font-size: 13px; color: var(--m-muted); }
 .m-right { margin-left: auto; display: flex; align-items: center; gap: 16px; }
 .m-pill { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; padding: 7px 14px; border-radius: 999px; background: var(--m-teal-soft); color: var(--m-teal); transition: background .3s, color .3s; }
 .m-pill i { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
-.m-pill.ring { background: #FFF3DC; color: #9A6500; }
-.m-pill.live { background: #E3F4EA; color: #1E7A47; }
-.m-pill.alert { background: #FBE3E0; color: var(--scam); }
-.m-pill.ended { background: #ECEFEE; color: var(--m-muted); }
+.m-pill.ring { background: var(--tint-watch); color: var(--hc-watch); }
+.m-pill.live { background: var(--tint-low); color: color-mix(var(--mix), var(--low) 80%, black); }
+.m-pill.alert { background: var(--tint-scam); color: var(--scam); }
+.m-pill.ended { background: color-mix(var(--mix), var(--line) 60%, white); color: var(--m-muted); }
 .m-pill.live i, .m-pill.alert i { animation: blink 1.2s ease-in-out infinite; }
 .m-timer { font: 600 20px/1 var(--f-mono); font-variant-numeric: tabular-nums; min-width: 66px; text-align: right; }
 
@@ -56,12 +63,12 @@ body.transparent { background: transparent; }
 .m-line .who { font-size: 12px; font-weight: 600; color: var(--m-muted); }
 .m-line .txt { padding: 11px 15px; border-radius: 14px; font-size: 17px; line-height: 1.5; }
 .m-line.caller { align-self: flex-start; }
-.m-line.caller .txt { background: #EEF2F1; border-top-left-radius: 4px; line-height: 1.9; padding-top: 17px; }
+.m-line.caller .txt { background: var(--bubble); border-top-left-radius: 4px; line-height: 1.9; padding-top: 17px; }
 .m-line.rose { align-self: flex-end; }
 .m-line.rose .who { text-align: right; }
 .m-line.rose .txt { background: var(--m-teal-soft); border-top-right-radius: 4px; }
 .m-line.announce { align-self: center; max-width: 92%; }
-.m-line.announce .txt { background: transparent; border: 1px dashed #C9D4D1; color: var(--m-muted); font-size: 15px; text-align: center; }
+.m-line.announce .txt { background: transparent; border: 1px dashed var(--soft-line); color: var(--m-muted); font-size: 15px; text-align: center; }
 .m-line.coach { align-self: flex-end; max-width: 88%; position: relative; z-index: 6; animation: coachIn .6s cubic-bezier(.2,.9,.3,1.15) both; transform-origin: 100% 0; }
 .m-line.coach .who { justify-self: end; color: var(--m-teal); background: #fff; padding: 4px 10px; border-radius: 999px; display: inline-flex; gap: 6px; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,.12); }
 .m-line.coach .who svg { width: 14px; height: 14px; }
@@ -70,9 +77,9 @@ body.transparent { background: transparent; }
 /* gradient outline that draws itself around Ellie's bubble */
 .stroke { position: absolute; pointer-events: none; overflow: visible; }
 .stroke path { fill: none; stroke: url(#ellieGrad); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1;
-  animation: draw 1.5s cubic-bezier(.65,0,.25,1) .2s forwards; filter: drop-shadow(0 0 5px rgba(60,214,186,.75)); }
+  animation: draw 1.5s cubic-bezier(.65,0,.25,1) .2s forwards; filter: drop-shadow(0 0 5px var(--glow)); }
 /* spotlight: everything else dims while Ellie speaks */
-.m-dim { position: absolute; inset: 0; z-index: 5; pointer-events: none; background: rgba(8,22,20,.55); -webkit-backdrop-filter: blur(2px) saturate(.7); backdrop-filter: blur(2px) saturate(.7);
+.m-dim { position: absolute; inset: 0; z-index: 5; pointer-events: none; background: color-mix(var(--mix), var(--ink) 58%, transparent); -webkit-backdrop-filter: blur(2px) saturate(.7); backdrop-filter: blur(2px) saturate(.7);
   opacity: 0; transition: opacity .6s ease; }
 .m.spot .m-dim { opacity: 1; }
 .m.spot .m-phone { z-index: 6; }
@@ -85,16 +92,16 @@ mark.on { background-size: 100% 68%; }
 mark sup { position: absolute; left: 0; bottom: calc(100% + 1px); font: 600 9.5px/1 var(--f-mono); letter-spacing: .05em; text-transform: uppercase; white-space: nowrap;
   color: var(--hc); background: var(--hl); padding: 2px 5px 2px; border-radius: 4px; opacity: 0; transform: translateY(4px); transition: opacity .35s .2s, transform .35s .2s; pointer-events: none; }
 mark.on sup { opacity: 1; transform: none; }
-mark.watch { --hl: #F7E3B5; --hc: #8A5D00; }
-mark.high  { --hl: #F9D2BA; --hc: #A9440C; }
-mark.scam  { --hl: #F6C6C0; --hc: #A82318; }
+mark.watch { --hl: var(--hl-watch); --hc: var(--hc-watch); }
+mark.high  { --hl: var(--hl-high); --hc: var(--hc-high); }
+mark.scam  { --hl: var(--hl-scam); --hc: var(--hc-scam); }
 .m-empty { margin: auto; text-align: center; max-width: 380px; color: var(--m-muted); display: grid; gap: 10px; justify-items: center; }
 .m-empty b { color: var(--m-ink); font-size: 18px; }
 
 /* overlays */
 .ov { position: absolute; transition: opacity .3s ease-out, transform .35s cubic-bezier(.2,.8,.2,1); }
 .ov.off { opacity: 0; pointer-events: none; }
-.m-incoming { inset: 0; z-index: 7; display: grid; place-items: center; background: rgba(243,246,245,.9); }
+.m-incoming { inset: 0; z-index: 7; display: grid; place-items: center; background: color-mix(var(--mix), var(--m-bg) 90%, transparent); }
 .m-incoming.off { transform: scale(.98); }
 .m-call { text-align: center; display: grid; gap: 8px; justify-items: center; }
 .m-rings { position: relative; width: 120px; height: 120px; display: grid; place-items: center; margin-bottom: 10px; }
@@ -115,8 +122,8 @@ mark.scam  { --hl: #F6C6C0; --hc: #A82318; }
 .m-phone .status svg { height: 11px; fill: #000; }
 .m-phone .head { display: grid; justify-items: center; gap: 3px; padding: 6px 12px 10px; border-bottom: 1px solid #E5E5EA; background: #F7F7F8; position: relative; }
 .m-phone .head .back { position: absolute; left: 10px; top: 16px; color: #0A84FF; font-size: 22px; line-height: 1; }
-.m-phone .avatar { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(160deg, #2FC4A6, #0E6B60); }
-.m-phone .avatar svg { width: 22px; height: 22px; }
+.m-phone .avatar { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; }
+.m-phone .avatar img { width: 100%; height: 100%; display: block; }
 .m-phone .name { font-size: 11.5px; color: #222; display: flex; align-items: center; gap: 2px; }
 .m-phone .name::after { content: "›"; color: #9A9AA0; font-size: 13px; }
 .m-phone .thread { flex: 1; padding: 12px 10px; display: flex; flex-direction: column; gap: 4px; font-size: 13.5px; line-height: 1.33; }
@@ -157,7 +164,7 @@ mark.scam  { --hl: #F6C6C0; --hc: #A82318; }
 .m-level b { display: block; font-size: 20px; color: var(--lvl); transition: color .3s; }
 .m-level span { font-size: 13px; color: var(--m-muted); }
 .m-bar { position: relative; height: 10px; border-radius: 5px; background: linear-gradient(90deg, var(--low) 0 30%, var(--watch) 30% 60%, var(--high) 60% 80%, var(--scam) 80%); }
-.m-bar .mask { position: absolute; top: 0; bottom: 0; right: 0; background: #E7ECEB; border-radius: 0 5px 5px 0; }
+.m-bar .mask { position: absolute; top: 0; bottom: 0; right: 0; background: color-mix(var(--mix), var(--line) 70%, white); border-radius: 0 5px 5px 0; }
 .m-bar .tick { position: absolute; left: 80%; top: -5px; bottom: -5px; width: 2px; background: var(--m-ink); }
 .m-spark { width: 100%; height: 46px; display: block; }
 .m-reason { font-size: 14.5px; line-height: 1.45; border-top: 1px solid var(--m-line); padding-top: 10px; display: flex; gap: 8px; min-height: 44px; }
@@ -166,8 +173,8 @@ mark.scam  { --hl: #F6C6C0; --hc: #A82318; }
 .m-reason.thinking span::after { content: ""; display: inline-block; width: 18px; animation: dots 1s steps(4) infinite; text-align: left; }
 
 .m-tac { padding: 12px 18px; display: grid; align-content: start; gap: 5px; overflow: hidden; }
-.m-tac-row { display: grid; grid-template-columns: 12px 1fr; gap: 10px; align-items: start; color: #A3AFAC; font-size: 14.5px; line-height: 1.3; transition: color .3s; }
-.m-tac-row i { width: 10px; height: 10px; border-radius: 50%; margin-top: 4px; border: 2px solid #C6D0CE; transition: background .3s, border-color .3s; }
+.m-tac-row { display: grid; grid-template-columns: 12px 1fr; gap: 10px; align-items: start; color: var(--faint); font-size: 14.5px; line-height: 1.3; transition: color .3s; }
+.m-tac-row i { width: 10px; height: 10px; border-radius: 50%; margin-top: 4px; border: 2px solid var(--soft-line); transition: background .3s, border-color .3s; }
 .m-tac-row.on { color: var(--m-ink); }
 .m-tac-row.on i { border-color: var(--dot); background: var(--dot); }
 .m-tac-row.on.new i { animation: ping .9s ease-out; }
@@ -179,19 +186,19 @@ mark.scam  { --hl: #F6C6C0; --hc: #A82318; }
 .m-act .m-label { grid-column: 1 / -1; }
 .m-act-row { display: grid; gap: 6px; align-content: start; font-size: 14px; line-height: 1.25; font-weight: 600; padding: 9px 11px; border-radius: 9px; background: var(--m-bg); transition: background .35s, color .35s; }
 .m-act-row span { font: 400 11.5px/1 var(--f-mono); color: var(--m-muted); }
-.m-act-row.firing { background: #FBE3E0; }
+.m-act-row.firing { background: var(--tint-scam); }
 .m-act-row.firing span { color: var(--scam); font-weight: 600; }
 .m-act-row.done { background: var(--m-teal); color: #fff; }
-.m-act-row.done span { color: #CDEBE6; }
+.m-act-row.done span { color: color-mix(var(--mix), var(--brand) 25%, white); }
 
-.m-pipe { display: flex; align-items: center; gap: 10px; padding: 0 28px; background: var(--m-surface); border-top: 1px solid var(--m-line); font-size: 13px; color: #9AA8A5; }
+.m-pipe { display: flex; align-items: center; gap: 10px; padding: 0 28px; background: var(--m-surface); border-top: 1px solid var(--m-line); font-size: 13px; color: var(--faint); }
 .m-pipe .node { display: flex; gap: 7px; align-items: center; white-space: nowrap; transition: color .3s; }
-.m-pipe .node i { width: 8px; height: 8px; border-radius: 50%; background: #CBD5D3; transition: background .3s, box-shadow .3s; }
+.m-pipe .node i { width: 8px; height: 8px; border-radius: 50%; background: var(--soft-line); transition: background .3s, box-shadow .3s; }
 .m-pipe .node b { font-weight: 600; }
 .m-pipe .node span { font-family: var(--f-mono); font-size: 11.5px; }
 .m-pipe .node.on { color: var(--m-ink); }
-.m-pipe .node.on i { background: var(--low); box-shadow: 0 0 0 4px #DDF1E5; }
-.m-pipe .arr { color: #C3CDCB; }
+.m-pipe .node.on i { background: var(--low); box-shadow: 0 0 0 4px var(--tint-low); }
+.m-pipe .arr { color: var(--soft-line); }
 .m-pipe .sim { margin-left: auto; font: 600 11px/1 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; }
 
 /* presenter controls (outside the stage; auto-hide) */
@@ -212,9 +219,9 @@ mark.scam  { --hl: #F6C6C0; --hc: #A82318; }
 @keyframes pulse { from { transform: scale(.85); } to { transform: scale(1.12); opacity: 0; } }
 @keyframes wiggle { 0%, 60%, 100% { transform: rotate(0); } 70% { transform: rotate(-10deg); } 80% { transform: rotate(10deg); } 90% { transform: rotate(-6deg); } }
 @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
-@keyframes flash { 0% { box-shadow: 0 0 0 0 rgba(210,55,43,.55); background: #FDEDEB; } 100% { box-shadow: 0 0 0 18px rgba(210,55,43,0); background: var(--m-surface); } }
+@keyframes flash { 0% { box-shadow: 0 0 0 0 color-mix(var(--mix), var(--scam) 55%, transparent); background: var(--tint-scam); } 100% { box-shadow: 0 0 0 18px transparent; background: var(--m-surface); } }
 @keyframes coachIn { from { opacity: 0; transform: translateY(14px) scale(.94); } }
-@keyframes coachGlow { 0% { box-shadow: 0 0 0 0 rgba(60,214,186,.0); } 30% { box-shadow: 0 0 0 8px rgba(60,214,186,.28), 0 16px 44px rgba(14,107,96,.45); } 100% { box-shadow: 0 10px 30px rgba(14,107,96,.35); } }
+@keyframes coachGlow { 0% { box-shadow: 0 0 0 0 transparent; } 30% { box-shadow: 0 0 0 8px color-mix(var(--mix), var(--ellie-b) 28%, transparent), 0 16px 44px color-mix(var(--mix), var(--brand) 45%, transparent); } 100% { box-shadow: 0 10px 30px color-mix(var(--mix), var(--brand) 35%, transparent); } }
 @keyframes draw { to { stroke-dashoffset: 0; } }
 @keyframes ping { 0% { box-shadow: 0 0 0 0 var(--dot); } 100% { box-shadow: 0 0 0 10px transparent; } }
 @keyframes dots { 0% { content: ""; } 25% { content: "."; } 50% { content: ".."; } 75% { content: "..."; } }
@@ -256,7 +263,7 @@ mark.scam  { --hl: #F6C6C0; --hc: #A82318; }
   <div class="ov m-phone off" id="ovPhone"></div>
   <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
     <linearGradient id="ellieGrad" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#7CF0D6"/><stop offset=".45" stop-color="#2FC4A6"/><stop offset="1" stop-color="#5B8CFF"/>
+      <stop offset="0" style="stop-color:var(--ellie-a)"/><stop offset=".45" style="stop-color:var(--ellie-b)"/><stop offset="1" style="stop-color:var(--ellie-c)"/>
       <animateTransform attributeName="gradientTransform" type="rotate" from="0 .5 .5" to="360 .5 .5" dur="5s" repeatCount="indefinite"/>
     </linearGradient></defs></svg>
 </div>
@@ -321,23 +328,23 @@ const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 const cache = new Map();
 const set = (el, key, val, apply) => { const k = el.id + key; if (cache.get(k) !== val) { cache.set(k, val); apply(val); } };
 const level = s => s == null ? null : s >= S.threshold ? ['scam', 'Likely scam'] : s >= 60 ? ['high', 'High risk'] : s >= 30 ? ['watch', 'Watch'] : ['low', 'Low risk'];
-const COL = { low: '#2F9E62', watch: '#C98A0E', high: '#E0661F', scam: '#D2372B' };
-const LOGO = `<svg viewBox="0 0 30 30" fill="none" aria-hidden="true"><circle cx="15" cy="15" r="14" fill="#0E6B60"/><g stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M8 13v4"/><path d="M12 10v10"/><path d="M16 8v14"/><path d="M20 11v8"/><path d="M23.5 14v2"/></g></svg>`;
+const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const COL = { low: cssVar('--low'), watch: cssVar('--watch'), high: cssVar('--high'), scam: cssVar('--scam') };
+const LOGO = '<img class="logo-img" src="brand/logo.svg" alt="">';
 const callRel = abs => fmt(abs - callStart);
 
 // ---------- static content ----------
 $('logo').innerHTML = `${LOGO}Ellie`;
 $('elderName').textContent = S.elder.name;
 $('elderLine').textContent = `Protected line · ${S.elder.number}`;
-$('txEmpty').innerHTML = `${LOGO.replace('viewBox', 'width="44" height="44" viewBox')}<b>Waiting for a call</b>Ellie joins every call to ${esc(S.elder.first)}’s number and listens for scam tactics.`;
+$('txEmpty').innerHTML = `<img src="brand/logo.svg" width="44" height="44" alt=""><b>Waiting for a call</b>Ellie joins every call to ${esc(S.elder.first)}’s number and listens for scam tactics.`;
 $('ovIncoming').innerHTML = `<div class="m-call"><div class="m-rings"><span></span><span></span><b><svg width="28" height="28" viewBox="0 0 24 24" fill="#fff"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1z"/></svg></b></div>
   <span class="m-label">Incoming call</span><div class="num">${S.caller.number}</div><div class="meta">Unknown number · ${S.caller.place}</div></div>`;
-const AVATAR = `<svg viewBox="0 0 30 30" fill="none" aria-hidden="true"><g stroke="#fff" stroke-width="2.6" stroke-linecap="round"><path d="M7 13v4"/><path d="M11.5 10v10"/><path d="M16 8v14"/><path d="M20.5 11v8"/><path d="M24 14v2"/></g></svg>`;
 $('ovPhone').innerHTML = `<div class="scr"><div class="island"></div>
   <div class="status"><span>14:07</span><span class="icons">
     <svg viewBox="0 0 18 11"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="6" rx="1"/><rect x="10" y="2.5" width="3" height="8.5" rx="1"/><rect x="15" y="0" width="3" height="11" rx="1"/></svg>
     <svg viewBox="0 0 26 12"><rect x=".5" y=".5" width="22" height="11" rx="3" fill="none" stroke="#000" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5"/><rect x="23.5" y="4" width="2" height="4" rx="1" opacity=".4"/></svg></span></div>
-  <div class="head"><span class="back">‹</span><div class="avatar">${AVATAR}</div><span class="name">Ellie</span></div>
+  <div class="head"><span class="back">‹</span><div class="avatar"><img src="brand/logo.svg" alt=""></div><span class="name">Ellie</span></div>
   <div class="thread"><div class="meta"><b>Text Message</b><br>Today 14:07</div>
     <div class="bubble">${esc(S.sms)} Call her: <a>${S.elder.number}</a></div></div>
   <div class="compose"><span class="plus">+</span><span class="field">Text Message</span></div></div>`;
@@ -508,9 +515,9 @@ function addStroke(line) {
 function spark(T, score) {
   const W = 400, H = 46, span = endT - callStart;
   const x = s => 4 + clamp((s - callStart) / span) * (W - 8), y = s => H - 4 - (s / 100) * (H - 8);
-  let svg = [25, 50, 75].map(s => `<line x1="0" x2="${W}" y1="${y(s)}" y2="${y(s)}" stroke="#EDF1F0"/>`).join('');
-  svg += `<line x1="0" x2="${W}" y1="${y(S.threshold)}" y2="${y(S.threshold)}" stroke="#D2372B" stroke-dasharray="4 4" opacity=".55"/>
-    <text x="${W - 4}" y="${y(S.threshold) - 4}" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="10" fill="#A82318">ACTS AT ${S.threshold}</text>`;
+  let svg = [25, 50, 75].map(s => `<line x1="0" x2="${W}" y1="${y(s)}" y2="${y(s)}" stroke="${cssVar('--line')}" opacity=".5"/>`).join('');
+  svg += `<line x1="0" x2="${W}" y1="${y(S.threshold)}" y2="${y(S.threshold)}" stroke="${COL.scam}" stroke-dasharray="4 4" opacity=".55"/>
+    <text x="${W - 4}" y="${y(S.threshold) - 4}" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="10" fill="${COL.scam}">ACTS AT ${S.threshold}</text>`;
   if (T < connectT) return svg;
   const done = checks.filter(c => c.t <= T);
   const pts = [[connectT, 0], ...done.map((c, i) => [c.t, i === done.length - 1 ? score : c.score])];

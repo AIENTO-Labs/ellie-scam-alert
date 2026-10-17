@@ -8,23 +8,30 @@ The call demo in this folder is the reference for the call screen. This file exp
 - Three rows: header (72 px), body, pipeline footer (52 px). The body is two columns: transcript (flexible) and a 440 px side column.
 - Corner radius 14 on the stage and on every card. Cards are white on a pale green-grey ground with a 1 px border.
 
+## Rebranding
+
+All colours and fonts live in **`brand/brand.css`** and the logo is **`brand/logo.svg`** (used in the header, the waiting screen and as Ellie's avatar on Anna's phone). Change those two files and the whole demo follows: tints, glows, highlight fills and the sparkline are mixed from the base colours. Nothing else needs editing. The phone screen keeps iPhone's own colours on purpose.
+
 ## Colour
+
+Current values (the names are the variables in `brand/brand.css`):
 
 | Token | Value | Use |
 |---|---|---|
-| `--m-bg` | `#F3F6F5` | stage ground |
-| `--m-surface` | `#FFFFFF` | cards |
-| `--m-ink` | `#12201E` | text |
-| `--m-muted` | `#5E6E6B` | labels, secondary text |
-| `--m-line` | `#DDE5E3` | borders |
-| `--m-teal` | `#0E6B60` | Ellie brand: logo, Ellie's bubble, done actions |
-| `--m-teal-soft` | `#E1F0ED` | Rose's bubbles, brand tints |
+| `--ground` | `#F3F6F5` | stage ground |
+| `--surface` | `#FFFFFF` | cards |
+| `--ink` | `#12201E` | text |
+| `--muted` | `#5E6E6B` | labels, secondary text |
+| `--line` | `#DDE5E3` | borders |
+| `--bubble` | `#EEF2F1` | caller's bubbles |
+| `--brand` | `#0E6B60` | Ellie brand: Ellie's bubble, done actions, wordmark |
+| `--brand-tint` | `#E1F0ED` | Rose's bubbles, brand pills |
 | `--low` | `#2F9E62` | risk under 30 |
 | `--watch` | `#C98A0E` | risk 30 to 59 |
 | `--high` | `#E0661F` | risk 60 to 79 |
 | `--scam` | `#D2372B` | risk 80 and over; Ellie acts at 80 |
 
-Highlight fills for flagged phrases: watch `#F7E3B5`, high `#F9D2BA`, scam `#F6C6C0`. Ellie's outline gradient: `#7CF0D6` → `#2FC4A6` → `#5B8CFF`.
+Highlight fills for flagged phrases are mixed from the risk colours. Ellie's outline gradient is `--ellie-a` → `--ellie-b` → `--ellie-c` (`#7CF0D6` → `#2FC4A6` → `#5B8CFF`); `--ellie-b` is also the glow.
 
 ## Type
 

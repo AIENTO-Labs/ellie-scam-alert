@@ -45,6 +45,10 @@ It posts `{ type: 'ellie:phase', phase, t }` to the parent when the phase change
 
 Browsers only play sound after a click or key press on the page, so start the demo with a click.
 
+## Rebrand
+
+Edit `brand/brand.css` (colours, fonts) and replace `brand/logo.svg`. Everything else follows. See [UI-SPEC.md](UI-SPEC.md).
+
 ## Change the call
 
 1. Edit `script.js`: lines, highlighted phrases, scam checks (score, tactics, Claude's reason) and voices.
