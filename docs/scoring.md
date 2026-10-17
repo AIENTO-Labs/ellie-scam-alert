@@ -1,0 +1,31 @@
+# Scoring model
+
+The call transcript is scored continuously. The output is a probability from 0 to 1 that the call is a scam, and the probability decides the action. Scoring exists to keep false positives down, so a call from a real relative or the real bank does not trigger an intercept.
+
+## Pipeline
+
+Call audio → live transcript → enrichment → scoring → probability (0 to 1) → action tier
+
+## Inputs (starting set, roughly 10 to 20 signals; weights to be tuned by the build team)
+
+| Group | Signals |
+|---|---|
+| Caller | unknown number, foreign or spoofed origin, claims an institution (bank, police, tax office, immigration), no prior contact |
+| Request | asks for TAN, OTP or PIN, asks for a transfer, "safe account", gift cards or crypto, cash or valuables pickup |
+| Pressure | urgency ("right now", "today"), threat (arrest, fine, account frozen), secrecy ("don't tell your bank or family") |
+| Voice | raised tone or stress, scripted cadence, refuses a callback |
+| Context | claims to be a relative in trouble, mismatch with known contacts |
+
+## Action tiers
+
+| Score | Colour | Action |
+|---|---|---|
+| under 0.5 | green | log only |
+| 0.5 to 0.89 | yellow | "pay attention" state on screen only; the call is **not** interrupted |
+| 0.9 and above | red | lower caller audio, companion voice cuts in with a warning, recording starts, family member alerted, guidance says hang up |
+
+The team agreed 50% for a small alert and 90% for full action. Yellow never interrupts the call; only red does. Exact cut-offs and colours (yellow vs orange) are a design decision to test with fake data. [NEEDS CONFIRMATION]
+
+## Demo case
+
+The demo uses an extreme fake bank fraud call so the score passes every tier visibly. Lower-confidence cases are explained in the README and slides, not demoed.
