@@ -14,6 +14,11 @@ Tactic keys match app/call-demo/script.js (auth, urgency, secrecy, payment, remo
 Usage:
   python backend/scoring/score.py data/scam-transcripts/fake-police.md            # rules + Claude
   python backend/scoring/score.py data/scam-transcripts/fake-police.md --offline  # rules only
+  python backend/scoring/score.py FILE --offline --voice 0.9   # plus a synthetic-voice signal
+
+Voice check: a synthetic-voice detector (Pindrop is the first candidate, see docs/aws-architecture.md)
+returns a probability that the caller's voice is AI generated. It is one more input, never a verdict:
+VOICE_WEIGHT * probability is added to the combined score. Today the value is passed in by hand.
 
 Reads ANTHROPIC_API_KEY from the environment or .env. Never commit keys.
 """
@@ -28,6 +33,7 @@ PROMPT = (ROOT / "prompts" / "scam-scorer.md").read_text(encoding="utf-8")
 MODEL = os.environ.get("ELLIE_MODEL", "claude-haiku-5-5")  # fast enough for per-chunk scoring
 
 THRESHOLD = 80
+VOICE_WEIGHT = 0.25  # a certain synthetic voice adds 25 points, enough to turn "high" into "scam"
 # Map the prompt's tactic ids to the call demo's keys.
 DEMO_KEY = {"authority_impersonation": "auth", "urgency": "urgency", "secrecy": "secrecy",
             "payment_request": "payment", "remote_access": "remote", "credential_request": "credentials",
@@ -57,6 +63,12 @@ def rule_score(text):
                 hits[tid] = m.group(0)
                 break
     score = min(1.0, sum(RULES[t][0] for t in hits))
+    # Same combination rule as the Claude prompt: asking for money, codes or remote
+    # access while posing as an authority, or demanding secrecy, is a scam on its own.
+    asks = {"payment_request", "credential_request", "remote_access"}
+    cover = {"authority_impersonation", "secrecy"}
+    if hits.keys() & asks and hits.keys() & cover:
+        score = max(score, 0.8)
     return score, hits
 
 
@@ -98,13 +110,13 @@ def caller_lines(path):
     """Lines starting with 'Caller:' or 'Elder:' from a transcript file."""
     out = []
     for line in Path(path).read_text(encoding="utf-8").splitlines():
-        m = re.match(r"^\s*(Caller|Elder|Helga|Hilde)\s*:\s*(.+)$", line)
+        m = re.match(r"^\s*(Caller|Elder|Helga)\s*:\s*(.+)$", line)
         if m:
             out.append((m.group(1), m.group(2)))
     return out
 
 
-def run(path, offline=False, checks=False):
+def run(path, offline=False, checks=False, voice=0.0):
     load_env()
     use_claude = not offline and bool(os.environ.get("ANTHROPIC_API_KEY"))
     so_far, best, seen, out_checks = [], 0.0, set(), []
@@ -125,6 +137,7 @@ def run(path, offline=False, checks=False):
                 combined = r
         else:
             combined = r
+        combined = min(1.0, combined + VOICE_WEIGHT * voice)
         best = max(best, combined)
         score100 = round(best * 100)
         result.update({"line": f"{speaker}: {text}", "score": score100, "tier": tier(score100)})
@@ -146,4 +159,5 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print(__doc__)
         sys.exit(1)
-    run(sys.argv[1], offline="--offline" in sys.argv, checks="--checks" in sys.argv)
+    voice = float(sys.argv[sys.argv.index("--voice") + 1]) if "--voice" in sys.argv else 0.0
+    run(sys.argv[1], offline="--offline" in sys.argv, checks="--checks" in sys.argv, voice=voice)
