@@ -5,7 +5,7 @@
 **Ellie answers first. Warns only you. Tells your family.**
 
 - Try it: [Ask Ellie](https://claude.ai/artifact/FhAiZYWzYGdkVUK1qzXKMR) (paste a message, Claude answers)
-- Watch it: [2-minute demo video](https://drive.google.com/file/d/11O24gQOdhJmWJ1RnxpbtBoRRiZifuRes/view?usp=sharing)
+- Watch it: [2-minute demo video]([(https://drive.google.com/file/d/12LQO1TQQdEMnXaLGRYHTciPo-H4UdPCD/view?usp=sharing)])
 - Run it: see "How to run it" below
 
 ## Audience, problem, demo (one sentence each)
