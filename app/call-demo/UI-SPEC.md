@@ -18,14 +18,14 @@ Current values (the names are the variables in `brand/brand.css`):
 
 | Token | Value | Use |
 |---|---|---|
-| `--ground` | `#F4F1E8` | parchment: stage ground |
-| `--surface` | `#FFFDF8` | cards |
+| `--ground` | `#EEF2F5` | cool navy-tinted grey: stage ground (the brand's parchment read too warm on screen) |
+| `--surface` | `#FFFFFF` | cards |
 | `--ink` | `#0E2A3B` | text (navy) |
 | `--muted` | `#4C5D66` | labels, secondary text |
-| `--line` | `#E4DDCC` | borders |
-| `--bubble` | `#ECE6D8` | caller's bubbles |
+| `--line` | `#DCE3E8` | borders |
+| `--bubble` | `#E9EEF2` | caller's bubbles |
 | `--brand` | `#0E2A3B` | navy: Ellie's bubble, done actions, wordmark |
-| `--brand-tint` | `#E6ECEF` | Hilde's bubbles, brand pills |
+| `--brand-tint` | `#F4ECD8` | brass wash: Hilde's bubbles, brand pills |
 | `--brass` | `#C9A24A` | the dot on the i in the wordmark |
 | `--low` | `#155C37` | risk under 30 (brand "safe") |
 | `--watch` | `#E3A21A` | risk 30 to 59 (brand "careful" mark) |
@@ -44,7 +44,7 @@ Highlight fills for flagged phrases are mixed from the risk colours. Ellie's out
 
 **Header.** Logo badge and the "Ellie" wordmark, elder's name and protected number, a status pill and the call timer. Pill states: Protected (navy), Incoming call (amber), Announcing / Live (green, dot blinks), Scam detected / Intervening (red, dot blinks), Call ended (grey).
 
-**Transcript.** Chat bubbles: caller on the left in grey with "Caller · number" above; Hilde on the right in a light navy tint. Words stream in with a 0.35 s speech-to-text lag and a blinking cursor. The announcement is a dashed, centred system line. Newest line stays at the bottom.
+**Transcript.** Chat bubbles: caller on the left in grey with "Caller · number" above; Hilde on the right in a light brass wash. Words stream in with a 0.35 s speech-to-text lag and a blinking cursor. The announcement is a dashed, centred system line. Newest line stays at the bottom.
 
 **Flagged phrases.** When Claude flags a tactic, its phrase gets a highlight band centred on the letters that sweeps in left to right (0.5 s), and a small mono tag (AUTHORITY, URGENCY, SECRECY, GIFT CARDS) fades in floating just above the phrase. The tag never takes space in the sentence, so the text does not jump. Trailing punctuation stays outside the highlight.
 
