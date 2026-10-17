@@ -21,7 +21,7 @@ Log anything agreed in the WhatsApp group here, so the repo stays the source of 
 - **Coordination:** WhatsApp group for talk, this repo as the source of truth.
 - **Call demo (Jonno, 17 Oct):** the older woman is **Hildegard Müller**, called **Hilde** (replaces Helga); her daughter is Anna; the caller is "Detective Weber, Berlin police". Scenario is **fake police** asking for €2,000 in Google Play gift cards.
 - **Call demo risk bands (Jonno, 17 Oct):** the score is shown 0 to 100 with four bands: green under 30, amber 30 to 59, orange 60 to 79, red 80 and over. **Ellie acts at 80** (private warning to Hilde, text to family, call ends). Scorer and docs updated to match (14:45).
-- **Call demo voices:** ElevenLabs for all three speakers (Ellie, Rose, caller). Ring tone and SMS chime are synthesised. See `app/call-demo/`.
+- **Call demo voices:** ElevenLabs for all three speakers (Ellie, Hilde, caller). Ring tone and SMS chime are synthesised. See `app/call-demo/`.
 - **Scoring (João, 14:45):** rules layer plus Claude Haiku every 10 to 15 s, Claude Sonnet for post-call texts and reports. Tactic keys match `script.js`. See docs/scoring.md.
 - **Roles (14:33):** Jonno demo and video; Gamei and Anna pitch, storytelling, avatar; Ekaterina infrastructure and backend; João scoring, repo, submission.
 
