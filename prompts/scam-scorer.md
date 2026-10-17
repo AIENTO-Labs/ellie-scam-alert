@@ -13,15 +13,19 @@ Tactics to look for (use these exact ids):
 - emotional_manipulation: relative in an accident or arrested, crying, panic
 - isolation: asks the user to stay on the line, not hang up, not call back
 
+Also name the scam pattern as one of: fake_police, bank_fraud, grandchild, tech_support, tax_office, parcel, investment, other.
+
 Return ONLY JSON in this shape:
 
 {
   "probability": 0.0,
+  "scenario": "fake_police",
   "tactics": [
     {"id": "authority_impersonation", "evidence": "short quote from the caller"}
   ],
   "reason": "one plain sentence a grandparent understands",
-  "advice": "one short instruction for the user, e.g. Hang up and call your bank on the number on your card."
+  "advice": "one short instruction for the user, e.g. Hang up and call your bank on the number on your card.",
+  "warning": "what Ellie says out loud to the user, 25 words max, naming the pattern plainly, e.g. Hilde, this is Ellie. Real police never ask for gift cards. You can hang up now."
 }
 
 Rules:
