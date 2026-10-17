@@ -1,0 +1,190 @@
+{
+ "name": "Ellie scam score (public API)",
+ "nodes": [
+  {
+   "parameters": {
+    "httpMethod": "POST",
+    "path": "ellie-score",
+    "responseMode": "responseNode",
+    "options": {
+     "allowedOrigins": "*"
+    }
+   },
+   "id": "wh",
+   "name": "Webhook",
+   "type": "n8n-nodes-base.webhook",
+   "typeVersion": 2,
+   "position": [
+    0,
+    0
+   ],
+   "webhookId": "ellie-score-7f3c9a12"
+  },
+  {
+   "parameters": {
+    "assignments": {
+     "assignments": [
+      {
+       "id": "p1",
+       "name": "prompt",
+       "value": "You are Ellie's scam detector. You read the live transcript of a phone call to an older adult in Germany and judge how likely it is that the CALLER is running a scam.\n\nScore the caller's behaviour, not the older adult's. Real banks, police and tax offices never ask for PINs, TANs or one-time codes, never ask for a transfer to a \"safe account\", never collect cash or valuables at the door, never ask for gift cards or crypto, and never tell people to keep the call secret from family or their bank.\n\nTactics to look for (use these exact ids):\n- authority_impersonation: claims to be police, bank, tax office, immigration, a court or a utility\n- urgency: pressure to act right now, today, before the line drops\n- secrecy: tells the user not to tell family, the bank or anyone\n- threat: arrest, fine, frozen account, a relative in danger\n- payment_request: transfer, safe account, cash pickup, gift cards, crypto, valuables\n- credential_request: PIN, TAN, one-time code, password, card details, online banking login\n- remote_access: asks the user to install or open AnyDesk, TeamViewer or any remote support app\n- emotional_manipulation: relative in an accident or arrested, crying, panic\n- isolation: asks the user to stay on the line, not hang up, not call back\n\nAlso name the scam pattern as one of: fake_police, bank_fraud, grandchild, tech_support, tax_office, parcel, investment, other.\n\nReturn ONLY JSON in this shape:\n\n{\n  \"probability\": 0.0,\n  \"scenario\": \"fake_police\",\n  \"tactics\": [\n    {\"id\": \"authority_impersonation\", \"evidence\": \"short quote from the caller\"}\n  ],\n  \"reason\": \"one plain sentence a grandparent understands\",\n  \"advice\": \"one short instruction for the user, e.g. Hang up and call your bank on the number on your card.\",\n  \"warning\": \"what Ellie says out loud to the user, 25 words max, naming the pattern plainly, e.g. Hilde, this is Ellie. Real police never ask for gift cards. You can hang up now.\"\n}\n\nRules:\n- probability is 0.0 to 1.0. The app shows it as 0 to 100: under 30 low, 30 to 59 watch, 60 to 79 high, 80 and over scam (Ellie acts).\n- Only list a tactic if the transcript contains evidence for it. Quote the caller, max 12 words.\n- A caller who claims authority but asks for nothing yet is suspicious, not proven: keep probability under 0.7.\n- Any credential_request, payment_request or remote_access combined with authority_impersonation or secrecy is 0.8 or above.\n- Write reason and advice in plain English, no jargon.\n",
+       "type": "string"
+      }
+     ]
+    },
+    "options": {}
+   },
+   "id": "cfg",
+   "name": "Config",
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    220,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "jsCode": "\nconst PROMPT = $('Config').first().json.prompt;\nconst body = $input.first().json.body || {};\nconst text = String(body.text || '').slice(0, 10000);\nconst channel = String(body.channel || 'call');\nif (!text.trim()) return [{ json: { error: 'text is required' } }];\nreturn [{ json: { anthropic: {\n  model: 'claude-haiku-5-5',\n  max_tokens: 500,\n  system: PROMPT,\n  messages: [{ role: 'user', content: `Channel: ${channel}\\n\\nTranscript or message so far:\\n\\n${text}` }]\n}}}];\n"
+   },
+   "id": "build",
+   "name": "Build request",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    440,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "method": "POST",
+    "url": "https://api.anthropic.com/v1/messages",
+    "authentication": "predefinedCredentialType",
+    "nodeCredentialType": "anthropicApi",
+    "sendHeaders": true,
+    "headerParameters": {
+     "parameters": [
+      {
+       "name": "anthropic-version",
+       "value": "2023-06-01"
+      }
+     ]
+    },
+    "sendBody": true,
+    "specifyBody": "json",
+    "jsonBody": "={{ JSON.stringify($json.anthropic) }}",
+    "options": {}
+   },
+   "id": "claude",
+   "name": "Claude",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    660,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "jsCode": "\nconst raw = ($input.first().json.content || []).map(c => c.text || '').join('');\nlet v = {};\ntry { v = JSON.parse(raw.slice(raw.indexOf('{'), raw.lastIndexOf('}') + 1)); } catch (e) { v = { probability: 0, reason: 'Claude answered in an unexpected format.', tactics: [] }; }\nconst p = Math.max(0, Math.min(1, Number(v.probability) || 0));\nreturn [{ json: {\n  score: Math.round(p * 100),\n  probability: p,\n  scenario: v.scenario || 'other',\n  tactics: Array.isArray(v.tactics) ? v.tactics : [],\n  reason: v.reason || '',\n  advice: v.advice || '',\n  warning: v.warning || '',\n  engine: 'claude-haiku-5-5 via n8n'\n}}];\n"
+   },
+   "id": "parse",
+   "name": "Parse",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    880,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "respondWith": "json",
+    "responseBody": "={{ JSON.stringify($json) }}",
+    "options": {
+     "responseHeaders": {
+      "entries": [
+       {
+        "name": "Access-Control-Allow-Origin",
+        "value": "*"
+       },
+       {
+        "name": "Content-Type",
+        "value": "application/json"
+       }
+      ]
+     }
+    }
+   },
+   "id": "resp",
+   "name": "Respond",
+   "type": "n8n-nodes-base.respondToWebhook",
+   "typeVersion": 1.1,
+   "position": [
+    1100,
+    0
+   ]
+  }
+ ],
+ "connections": {
+  "Webhook": {
+   "main": [
+    [
+     {
+      "node": "Config",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Config": {
+   "main": [
+    [
+     {
+      "node": "Build request",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Build request": {
+   "main": [
+    [
+     {
+      "node": "Claude",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Claude": {
+   "main": [
+    [
+     {
+      "node": "Parse",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Parse": {
+   "main": [
+    [
+     {
+      "node": "Respond",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  }
+ },
+ "settings": {
+  "executionOrder": "v1"
+ }
+}
