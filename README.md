@@ -1,12 +1,12 @@
 # Ellie
 
-**One line:** Ellie (from "elderly ally") is an AI companion that listens to calls with older adults, scores the scam risk live, cuts in with a warning before money moves, alerts the family and prepares a report for the authorities.
+**One line:** Ellie (from "elderly ally") is an AI companion that listens to calls with older adults and other people vulnerable to scams, scores the scam risk live, cuts in with a warning before money moves, alerts the family and prepares a report for the authorities.
 
 > Repo name `scamalert` is the working name. Teammates: start with [TEAM.md](TEAM.md).
 
 ## Audience, problem, demo (one sentence each)
 
-1. **Who:** older adults (65+) living independently, and the adult children who worry about them.
+1. **Who:** older adults (65+) and anyone vulnerable to phone scams, plus the protectors who look out for them: family, carers or a trusted organisation.
 2. **Their problem with AI today:** AI is used against them (cloned voices, scripted scam calls) while they have no AI on their side, and phone calls leave them the least time to think.
 3. **What the demo lets them do:** take a call with Ellie listening in, which spots a scam call as it happens, warns them in plain speech, and tells their family.
 
@@ -27,7 +27,8 @@ Scoring model and thresholds: [docs/scoring.md](docs/scoring.md)
 
 ## How Claude is used
 
-- Reads the live transcript and scores it against the scam signals in [docs/scoring.md](docs/scoring.md). [NEEDS CONFIRMATION: model name, check docs.claude.com]
+- Reads the live transcript chunk by chunk (Claude Haiku) and returns a scam probability, the tactics it sees with quoted evidence, and a one-line warning. A rules layer runs alongside so the demo never depends on one API call. See [docs/scoring.md](docs/scoring.md).
+- Writes the post-call family text and the authority report (Claude Sonnet).
 - Writes the spoken warning and the next-step advice in plain language for an older user.
 - Powers the companion chat after the call ("was that real?").
 
@@ -37,7 +38,10 @@ Prompts live in [`prompts/`](prompts/).
 
 ```bash
 cp .env.example .env    # paste your ANTHROPIC_API_KEY into .env
-# start commands: to be added by the build team
+pip install anthropic
+python backend/scoring/score.py data/scam-transcripts/fake-police.md            # scorer with Claude
+python backend/scoring/score.py data/scam-transcripts/fake-police.md --offline  # rules only
+# call screen and call flow: to be added by Jonno and Ekaterina
 ```
 
 **Live link (if any):** to be added
@@ -55,7 +59,7 @@ app/         web app front end (companion, call screen)
 backend/     transcript, enrichment, scoring
 prompts/     Claude prompts
 data/        sample scam transcripts (fake data)
-docs/        scoring model, demo script, decisions, architecture
+docs/        scoring, architecture, demo script, decisions, tasks, reporting
 notes/       team notes and raw transcripts of our planning
 demo/        demo video
 slides/      slide images and PDF for the finals
@@ -65,11 +69,11 @@ slides/      slide images and PDF for the finals
 
 | Name | Role / background |
 |---|---|
-| João Diogo | Founder: repo, story, positioning, README, slides |
-| John [NEEDS CONFIRMATION: surname] | Product or design: wireframes, call screen, demo video |
-| Gamei Chin | Builder: Ellie avatar |
-| [NEEDS CONFIRMATION] | Domain expert: impact data, reporting |
-| [NEEDS CONFIRMATION] | Builder: app shell, scoring |
+| João Diogo | Founder: scoring model, repo, README |
+| Jonno | Product or design: call screen, demo video |
+| Gamei Chin | Pitch, storytelling, Ellie avatar |
+| Anna Son | Pitch, storytelling, Ellie avatar |
+| Ekaterina | Builder: infrastructure, call flow, backend |
 
 ## Credits
 

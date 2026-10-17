@@ -11,7 +11,7 @@ Read this file, then `CLAUDE.md`, then `docs/decisions.md` at the start of every
 3. **Advise:** tells the user what to do now (hang up, call the bank on the number on the card) and answers "was that real?" afterwards.
 4. **Report:** alerts the family by text and prepares a report for the authorities.
 
-Audience: older adults (65+) in Germany and their adult children. Demo language: English.
+Audience: older adults (65+) and anyone vulnerable to phone scams, in Germany first. Protectors: family, carers or a trusted organisation get the alerts. Demo language: English. Never describe users by ability or intelligence; say "vulnerable to scams".
 
 ## Fixed choices (do not change without the team)
 
@@ -27,14 +27,16 @@ Audience: older adults (65+) in Germany and their adult children. Demo language:
 
 | Path | Owner | What |
 |---|---|---|
-| `app/` | John + app shell builder | call screen and Ellie web app |
-| `app/avatar/` | Gamei | Ellie avatar |
-| `backend/` | builder | transcript, enrichment, scoring |
-| `prompts/` | builder | every Claude prompt, one file each |
-| `data/scam-transcripts/` | research | sample scam call scripts and phrases, fake data only |
-| `docs/` | João | decisions, scoring, demo script, reporting, tasks |
-| `demo/` | John | `demo.mp4` |
-| `slides/` | João + research | slide PNGs and PDF for the finals |
+| `app/` | Jonno | call screen and Ellie web app |
+| `app/avatar/` | Gamei, Anna | Ellie avatar |
+| `backend/` (call flow, streaming, STT) | Ekaterina | Twilio, WebSocket, speech to text |
+| `backend/scoring/`, `prompts/` | João | scorer and Claude prompts |
+| `data/scam-transcripts/` | João | demo scripts and scam phrases, fake data only |
+| `docs/` | João | decisions, scoring, architecture, demo script, reporting, tasks |
+| `demo/` | Jonno | `demo.mp4` |
+| `slides/` | Gamei, Anna | pitch slides for the finals |
+
+Background for everything above: `notes/session-context.md`.
 
 Do not edit another owner's folder without telling them in WhatsApp.
 
