@@ -6,7 +6,6 @@
 
 - Try it: [Ask Ellie](https://claude.ai/artifact/FhAiZYWzYGdkVUK1qzXKMR) (paste a message, Claude answers)
 - Watch it: [2-minute demo video](https://drive.google.com/file/d/11O24gQOdhJmWJ1RnxpbtBoRRiZifuRes/view?usp=sharing)
-- Watch the call: [call demo video, 1:24](https://drive.google.com/file/d/12LQO1TQQdEMnXaLGRYHTciPo-H4UdPCD/view?usp=sharing) (a scam call stopped live, then the report for the police)
 - Run it: see "How to run it" below
 
 ## Audience, problem, demo (one sentence each)
@@ -51,6 +50,9 @@ The web app (`app/index.html`) has two parts:
 
 - **Ask Ellie:** paste an SMS, WhatsApp or email and get a 0 to 100 scam score, the tactics found, a plain-language reason and what to do next. Uses Claude when the server has a key; falls back to built-in rules otherwise, so it always works.
 - **Call protection:** Jonno's simulated scam call (`app/call-demo`), embedded. Live transcript, score, Ellie's private warning at 80, text to the family.
+- **Live call (`app/live.html`):** the laptop microphone is the phone line. Open it in Chrome, click "Answer the call", let someone play the caller or put a phone on speaker. Speech to text runs in the browser, each line is scored by the backend, and Ellie speaks the warning out loud at 80. Browsers without speech recognition get a typed fallback.
+
+The product backend is `backend/` (Node): Twilio call flow, Deepgram transcripts, scoring, family alerts, reports, 21 tests. `npm install && npm start` in `backend/`, then the live page scores through it. See `backend/README.md`.
 
 Score a call transcript from the command line:
 
@@ -58,7 +60,7 @@ Score a call transcript from the command line:
 python backend/scoring/score.py data/scam-transcripts/fake-police-rose.md --offline
 ```
 
-**Call demo video:** [watch on Google Drive](https://drive.google.com/file/d/12LQO1TQQdEMnXaLGRYHTciPo-H4UdPCD/view?usp=sharing), or `demo/call-demo.mp4` in the repo
+**Demo video:** `demo/call-demo.mp4`
 
 ## Screenshots / demo
 
