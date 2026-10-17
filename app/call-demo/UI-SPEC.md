@@ -1,0 +1,72 @@
+# Ellie call screen: UI spec
+
+The call demo in this folder is the reference for the call screen. This file explains how it is put together, so the app shell and any other screens can match it. Open `index.html` to see every state; press → to jump between beats.
+
+## Canvas
+
+- One fixed stage of **1200 × 750** (16:10), scaled to fit its box and letterboxed. Design at this size; never reflow.
+- Three rows: header (72 px), body, pipeline footer (52 px). The body is two columns: transcript (flexible) and a 440 px side column.
+- Corner radius 14 on the stage and on every card. Cards are white on a pale green-grey ground with a 1 px border.
+
+## Colour
+
+| Token | Value | Use |
+|---|---|---|
+| `--m-bg` | `#F3F6F5` | stage ground |
+| `--m-surface` | `#FFFFFF` | cards |
+| `--m-ink` | `#12201E` | text |
+| `--m-muted` | `#5E6E6B` | labels, secondary text |
+| `--m-line` | `#DDE5E3` | borders |
+| `--m-teal` | `#0E6B60` | Ellie brand: logo, Ellie's bubble, done actions |
+| `--m-teal-soft` | `#E1F0ED` | Rose's bubbles, brand tints |
+| `--low` | `#2F9E62` | risk under 30 |
+| `--watch` | `#C98A0E` | risk 30 to 59 |
+| `--high` | `#E0661F` | risk 60 to 79 |
+| `--scam` | `#D2372B` | risk 80 and over; Ellie acts at 80 |
+
+Highlight fills for flagged phrases: watch `#F7E3B5`, high `#F9D2BA`, scam `#F6C6C0`. Ellie's outline gradient: `#7CF0D6` → `#2FC4A6` → `#5B8CFF`.
+
+## Type
+
+- **Figtree** for everything you read (transcript 17 px, Ellie 18 px, UI 14 to 16 px).
+- **Bricolage Grotesque** bold for the big numbers and the wordmark (risk score 64 px, summary title 30 px).
+- **JetBrains Mono** for small uppercase labels (12 px, 0.08em tracking), timers and timestamps.
+
+## Components and states
+
+**Header.** Logo and "Ellie", elder's name and protected number, a status pill and the call timer. Pill states: Protected (teal), Incoming call (amber), Announcing / Live (green, dot blinks), Scam detected / Intervening (red, dot blinks), Call ended (grey).
+
+**Transcript.** Chat bubbles: caller on the left in grey with "Caller · number" above; Rose on the right in teal tint. Words stream in with a 0.35 s speech-to-text lag and a blinking cursor. The announcement is a dashed, centred system line. Newest line stays at the bottom.
+
+**Flagged phrases.** When Claude flags a tactic, its phrase gets a highlight band centred on the letters that sweeps in left to right (0.5 s), and a small mono tag (AUTHORITY, URGENCY, SECRECY, GIFT CARDS) fades in floating just above the phrase. The tag never takes space in the sentence, so the text does not jump. Trailing punctuation stays outside the highlight.
+
+**Scam risk card.** Big score with "/100", level name in the level colour, and "Last check mm:ss". A segmented bar (green, amber, orange, red) with a black tick at 80. A sparkline of the score over the call with a dashed red "ACTS AT 80" line. One line from Claude explaining the latest score; while a check runs it reads "Checking the conversation…". Each new score counts up over 0.7 s. Crossing 80 flashes the card red once.
+
+**Tactics detected.** Every tactic Ellie looks for is always listed, greyed out, so viewers see what it watches for. A flagged tactic gets a coloured dot (with a ping) and its quote underneath, one line, truncated.
+
+**Actions.** Three tiles: Warn Rose privately, Text Anna (daughter), End the call. States: Ready at 80 (grey), Triggering… (red tint), Done mm:ss (teal).
+
+**Pipeline footer.** Call audio → Speech to text → Scam check → Action, each node lights green while it is working, plus "Simulated call" on the right so nobody thinks it is live.
+
+## Key moments
+
+| Moment | What happens |
+|---|---|
+| Incoming call | Card over the transcript: phone icon with pulsing rings, the number, "Unknown number · Berlin". Ring tone plays. |
+| Ellie speaks | The whole stage dims and blurs slightly (0.6 s). Ellie's bubble pops in at full size (teal, white text) with a glow, and a gradient outline draws around it in 1.5 s, then shimmers slowly. A white pill above it reads "Ellie · only Rose hears this". Her words type in. The dim lifts about 1 s after she finishes. |
+| Family alert | Anna's phone slides up over the right column (above the dim): a Messages-style screen with Ellie as the contact, "Text Message · Today 14:07" and a grey incoming bubble with the alert and Rose's number. |
+| Call ended | A summary replaces the transcript: "Scam call stopped", call length, peak risk, €0 lost, and a timeline of what happened with times and coloured dots. |
+
+## How it is driven
+
+- `script.js` holds the whole call: speakers and voices, every line, the phrases to highlight, and the scam checks (when each fires, the score, the tactics, Claude's reason, the summary line).
+- `audio/durations.js` (generated) holds each clip's length; the timeline is built from it, so changing a line re-times everything.
+- The screen is a pure function of time: `render(t)` draws the exact state for any second, which is why scrubbing, beat jumps and the frame-perfect video export work.
+
+## Embedding in the app shell
+
+```html
+<iframe src="call-demo/index.html?controls=0&bg=transparent" style="width:100%;aspect-ratio:16/10;border:0" allow="autoplay; fullscreen"></iframe>
+```
+
+Control it with `postMessage({ type: 'ellie:play' | 'ellie:pause' | 'ellie:toggle' | 'ellie:reset' | 'ellie:seek', t })`. It posts `{ type: 'ellie:phase', phase }` back as the call moves through idle, ringing, announcing, live, detected, intervening and ended. Browsers only allow sound after a click inside the frame.

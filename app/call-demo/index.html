@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ellie · Call Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* The demo is one 1200×750 stage, scaled to fit whatever box the shell gives it (iframe or div). */
+:root {
+  --f-display: "Bricolage Grotesque", "Figtree", system-ui, sans-serif;
+  --f-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --m-bg: #F3F6F5; --m-surface: #FFFFFF; --m-ink: #12201E; --m-muted: #5E6E6B; --m-line: #DDE5E3; --m-teal: #0E6B60; --m-teal-soft: #E1F0ED;
+  --low: #2F9E62; --watch: #C98A0E; --high: #E0661F; --scam: #D2372B;
+  --letterbox: #E6ECEA;
+}
+html, body { height: 100%; margin: 0; }
+body { background: var(--letterbox); overflow: hidden; font-family: var(--f-body); }
+body.transparent { background: transparent; }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+.m { position: absolute; top: 0; left: 0; width: 1200px; height: 750px; transform-origin: 0 0;
+  background: var(--m-bg); color: var(--m-ink); font-size: 16px; line-height: 1.4;
+  display: grid; grid-template-rows: 72px 1fr 52px; overflow: hidden; border-radius: 14px; }
+
+/* header */
+.m-top { display: flex; align-items: center; gap: 18px; padding: 0 28px; background: var(--m-surface); border-bottom: 1px solid var(--m-line); }
+.m-logo { display: flex; align-items: center; gap: 10px; font: 700 23px/1 var(--f-display); color: var(--m-teal); letter-spacing: -.01em; }
+.m-logo svg { width: 30px; height: 30px; }
+.m-sep { width: 1px; height: 30px; background: var(--m-line); }
+.m-who b { display: block; font-size: 17px; }
+.m-who span { font-size: 13px; color: var(--m-muted); }
+.m-right { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+.m-pill { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; padding: 7px 14px; border-radius: 999px; background: var(--m-teal-soft); color: var(--m-teal); transition: background .3s, color .3s; }
+.m-pill i { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.m-pill.ring { background: #FFF3DC; color: #9A6500; }
+.m-pill.live { background: #E3F4EA; color: #1E7A47; }
+.m-pill.alert { background: #FBE3E0; color: var(--scam); }
+.m-pill.ended { background: #ECEFEE; color: var(--m-muted); }
+.m-pill.live i, .m-pill.alert i { animation: blink 1.2s ease-in-out infinite; }
+.m-timer { font: 600 20px/1 var(--f-mono); font-variant-numeric: tabular-nums; min-width: 66px; text-align: right; }
+
+.m-body { display: grid; grid-template-columns: 1fr 440px; gap: 18px; padding: 16px 24px; min-height: 0; }
+.m-card { background: var(--m-surface); border: 1px solid var(--m-line); border-radius: 14px; min-height: 0; }
+.m-label { font: 600 12px/1 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--m-muted); }
+
+/* transcript */
+.m-tx { position: relative; display: flex; flex-direction: column; padding: 18px 22px; overflow: hidden; }
+.m-tx-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.m-tx-scroll { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
+.m-tx-list { margin-top: auto; display: flex; flex-direction: column; gap: 12px; padding: 8px 8px 8px; }
+.m-line { max-width: 82%; display: grid; gap: 4px; animation: rise .25s ease-out; }
+.m-line .who { font-size: 12px; font-weight: 600; color: var(--m-muted); }
+.m-line .txt { padding: 11px 15px; border-radius: 14px; font-size: 17px; line-height: 1.5; }
+.m-line.caller { align-self: flex-start; }
+.m-line.caller .txt { background: #EEF2F1; border-top-left-radius: 4px; line-height: 1.9; padding-top: 17px; }
+.m-line.rose { align-self: flex-end; }
+.m-line.rose .who { text-align: right; }
+.m-line.rose .txt { background: var(--m-teal-soft); border-top-right-radius: 4px; }
+.m-line.announce { align-self: center; max-width: 92%; }
+.m-line.announce .txt { background: transparent; border: 1px dashed #C9D4D1; color: var(--m-muted); font-size: 15px; text-align: center; }
+.m-line.coach { align-self: flex-end; max-width: 88%; position: relative; z-index: 6; animation: coachIn .6s cubic-bezier(.2,.9,.3,1.15) both; transform-origin: 100% 0; }
+.m-line.coach .who { justify-self: end; color: var(--m-teal); background: #fff; padding: 4px 10px; border-radius: 999px; display: inline-flex; gap: 6px; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,.12); }
+.m-line.coach .who svg { width: 14px; height: 14px; }
+.m-line.coach .txt { position: relative; background: var(--m-teal); color: #fff; border-top-right-radius: 4px; font-size: 18px; animation: coachGlow 2.4s ease-out .3s both; }
+.m-line .ghost { color: transparent; }
+/* gradient outline that draws itself around Ellie's bubble */
+.stroke { position: absolute; pointer-events: none; overflow: visible; }
+.stroke path { fill: none; stroke: url(#ellieGrad); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1;
+  animation: draw 1.5s cubic-bezier(.65,0,.25,1) .2s forwards; filter: drop-shadow(0 0 5px rgba(60,214,186,.75)); }
+/* spotlight: everything else dims while Ellie speaks */
+.m-dim { position: absolute; inset: 0; z-index: 5; pointer-events: none; background: rgba(8,22,20,.55); -webkit-backdrop-filter: blur(2px) saturate(.7); backdrop-filter: blur(2px) saturate(.7);
+  opacity: 0; transition: opacity .6s ease; }
+.m.spot .m-dim { opacity: 1; }
+.m.spot .m-phone { z-index: 6; }
+.m-line .cursor { display: inline-block; width: 7px; height: 1em; vertical-align: -2px; margin-left: 2px; background: currentColor; opacity: .35; animation: blink .8s steps(2) infinite; }
+/* highlight band sits centred on the letters and sweeps in left to right when Claude flags the phrase */
+mark { position: relative; color: inherit; border-radius: 4px; padding: 0 2px; -webkit-box-decoration-break: clone; box-decoration-break: clone;
+  background: linear-gradient(var(--hl), var(--hl)) no-repeat 0 52% / 0% 68%; transition: background-size .5s ease-out; }
+mark.on { background-size: 100% 68%; }
+/* the tag floats just above the start of the highlight, so it never reflows the sentence */
+mark sup { position: absolute; left: 0; bottom: calc(100% + 1px); font: 600 9.5px/1 var(--f-mono); letter-spacing: .05em; text-transform: uppercase; white-space: nowrap;
+  color: var(--hc); background: var(--hl); padding: 2px 5px 2px; border-radius: 4px; opacity: 0; transform: translateY(4px); transition: opacity .35s .2s, transform .35s .2s; pointer-events: none; }
+mark.on sup { opacity: 1; transform: none; }
+mark.watch { --hl: #F7E3B5; --hc: #8A5D00; }
+mark.high  { --hl: #F9D2BA; --hc: #A9440C; }
+mark.scam  { --hl: #F6C6C0; --hc: #A82318; }
+.m-empty { margin: auto; text-align: center; max-width: 380px; color: var(--m-muted); display: grid; gap: 10px; justify-items: center; }
+.m-empty b { color: var(--m-ink); font-size: 18px; }
+
+/* overlays */
+.ov { position: absolute; transition: opacity .3s ease-out, transform .35s cubic-bezier(.2,.8,.2,1); }
+.ov.off { opacity: 0; pointer-events: none; }
+.m-incoming { inset: 0; z-index: 7; display: grid; place-items: center; background: rgba(243,246,245,.9); }
+.m-incoming.off { transform: scale(.98); }
+.m-call { text-align: center; display: grid; gap: 8px; justify-items: center; }
+.m-rings { position: relative; width: 120px; height: 120px; display: grid; place-items: center; margin-bottom: 10px; }
+.m-rings span { position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--m-teal); opacity: .25; animation: pulse 1.6s ease-out infinite; }
+.m-rings span:nth-child(2) { inset: 16px; opacity: .45; animation-delay: .4s; }
+.m-rings b { width: 64px; height: 64px; border-radius: 50%; background: var(--m-teal); display: grid; place-items: center; animation: wiggle 1.2s ease-in-out infinite; }
+.m-call .num { font: 600 28px/1.1 var(--f-mono); }
+.m-call .meta { color: var(--m-muted); }
+
+.m-phone { right: 112px; top: 104px; width: 242px; height: 472px; z-index: 6; border-radius: 38px; background: #1B1F1E; padding: 4.5px;
+  box-shadow: 0 0 0 1.5px #3A403F inset, 0 24px 50px rgba(0,0,0,.35); }
+.m-phone.off { transform: translateY(40px) rotate(2deg); }
+.m-phone .scr { position: relative; height: 100%; border-radius: 34px; background: #fff; overflow: hidden; display: flex; flex-direction: column;
+  font-family: -apple-system, "SF Pro Text", "Helvetica Neue", var(--f-body); color: #000; }
+.m-phone .island { position: absolute; top: 9px; left: 50%; transform: translateX(-50%); width: 72px; height: 21px; border-radius: 12px; background: #000; }
+.m-phone .status { display: flex; justify-content: space-between; align-items: center; padding: 12px 22px 0 26px; height: 40px; font-size: 13px; font-weight: 600; }
+.m-phone .status .icons { display: flex; gap: 4px; align-items: center; }
+.m-phone .status svg { height: 11px; fill: #000; }
+.m-phone .head { display: grid; justify-items: center; gap: 3px; padding: 6px 12px 10px; border-bottom: 1px solid #E5E5EA; background: #F7F7F8; position: relative; }
+.m-phone .head .back { position: absolute; left: 10px; top: 16px; color: #0A84FF; font-size: 22px; line-height: 1; }
+.m-phone .avatar { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(160deg, #2FC4A6, #0E6B60); }
+.m-phone .avatar svg { width: 22px; height: 22px; }
+.m-phone .name { font-size: 11.5px; color: #222; display: flex; align-items: center; gap: 2px; }
+.m-phone .name::after { content: "›"; color: #9A9AA0; font-size: 13px; }
+.m-phone .thread { flex: 1; padding: 12px 10px; display: flex; flex-direction: column; gap: 4px; font-size: 13.5px; line-height: 1.33; }
+.m-phone .meta { text-align: center; font-size: 10.5px; color: #8E8E93; margin-bottom: 6px; }
+.m-phone .meta b { font-weight: 600; }
+.m-phone .bubble { align-self: flex-start; max-width: 84%; background: #E9E9EB; color: #000; padding: 8px 12px; border-radius: 18px; position: relative; }
+.m-phone .bubble::before { content: ""; position: absolute; left: -5px; bottom: 0; width: 14px; height: 14px; background: #E9E9EB; border-bottom-right-radius: 12px; }
+.m-phone .bubble::after { content: ""; position: absolute; left: -9px; bottom: 0; width: 9px; height: 14px; background: #fff; border-bottom-right-radius: 8px; }
+.m-phone .bubble a { color: #0A84FF; text-decoration: underline; }
+.m-phone:not(.off) .bubble { animation: smsIn .45s cubic-bezier(.2,.9,.3,1.2) .35s both; }
+.m-phone .typing-in { font-size: 10.5px; color: #8E8E93; margin-left: 4px; }
+.m-phone .compose { display: flex; align-items: center; gap: 8px; padding: 8px 10px 18px; }
+.m-phone .compose .plus { width: 26px; height: 26px; border-radius: 50%; background: #E9E9EB; color: #8E8E93; display: grid; place-items: center; font-size: 18px; }
+.m-phone .compose .field { flex: 1; border: 1px solid #D1D1D6; border-radius: 16px; padding: 5px 12px; font-size: 12.5px; color: #B0B0B5; }
+@keyframes smsIn { from { opacity: 0; transform: translateY(10px) scale(.92); transform-origin: 0 100%; } }
+
+.m-sum { inset: 0; z-index: 7; background: var(--m-surface); padding: 24px 26px; display: grid; grid-template-rows: auto auto 1fr; gap: 18px; }
+.m-sum.off { transform: translateY(12px); }
+.m-sum h3 { margin: 6px 0 0; font: 700 30px/1.1 var(--f-display); }
+.m-sum .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.m-sum .stats div { background: var(--m-bg); border-radius: 10px; padding: 12px 14px; }
+.m-sum .stats b { display: block; font: 700 26px/1.1 var(--f-display); font-variant-numeric: tabular-nums; }
+.m-sum .stats span { font-size: 13px; color: var(--m-muted); }
+.m-sum ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; align-content: start; }
+.m-sum li { display: grid; grid-template-columns: 58px 12px 1fr; gap: 10px; align-items: center; font-size: 15.5px; }
+.m-sum:not(.off) li { animation: rise .35s ease-out backwards; }
+.m-sum li time { font: 400 13px/1 var(--f-mono); color: var(--m-muted); }
+.m-sum li i { width: 10px; height: 10px; border-radius: 50%; background: var(--dot); }
+
+/* right column */
+.m-side { display: grid; grid-template-rows: auto 1fr auto; gap: 12px; min-height: 0; }
+.m-risk { padding: 14px 18px; display: grid; gap: 8px; transition: box-shadow .3s; }
+.m-risk.flash { animation: flash .9s ease-out; }
+.m-risk-row { display: flex; align-items: flex-end; gap: 14px; }
+.m-score { font: 700 64px/.9 var(--f-display); font-variant-numeric: tabular-nums; color: var(--lvl); letter-spacing: -.02em; min-width: 1.4em; transition: color .3s; }
+.m-score small { font-size: 22px; color: var(--m-muted); font-weight: 500; }
+.m-level { padding-bottom: 6px; }
+.m-level b { display: block; font-size: 20px; color: var(--lvl); transition: color .3s; }
+.m-level span { font-size: 13px; color: var(--m-muted); }
+.m-bar { position: relative; height: 10px; border-radius: 5px; background: linear-gradient(90deg, var(--low) 0 30%, var(--watch) 30% 60%, var(--high) 60% 80%, var(--scam) 80%); }
+.m-bar .mask { position: absolute; top: 0; bottom: 0; right: 0; background: #E7ECEB; border-radius: 0 5px 5px 0; }
+.m-bar .tick { position: absolute; left: 80%; top: -5px; bottom: -5px; width: 2px; background: var(--m-ink); }
+.m-spark { width: 100%; height: 46px; display: block; }
+.m-reason { font-size: 14.5px; line-height: 1.45; border-top: 1px solid var(--m-line); padding-top: 10px; display: flex; gap: 8px; min-height: 44px; }
+.m-reason em { font: 600 11px/1.6 var(--f-mono); color: var(--m-teal); background: var(--m-teal-soft); border-radius: 4px; padding: 0 5px; height: fit-content; white-space: nowrap; }
+.m-reason.thinking span { color: var(--m-muted); }
+.m-reason.thinking span::after { content: ""; display: inline-block; width: 18px; animation: dots 1s steps(4) infinite; text-align: left; }
+
+.m-tac { padding: 12px 18px; display: grid; align-content: start; gap: 5px; overflow: hidden; }
+.m-tac-row { display: grid; grid-template-columns: 12px 1fr; gap: 10px; align-items: start; color: #A3AFAC; font-size: 14.5px; line-height: 1.3; transition: color .3s; }
+.m-tac-row i { width: 10px; height: 10px; border-radius: 50%; margin-top: 4px; border: 2px solid #C6D0CE; transition: background .3s, border-color .3s; }
+.m-tac-row.on { color: var(--m-ink); }
+.m-tac-row.on i { border-color: var(--dot); background: var(--dot); }
+.m-tac-row.on.new i { animation: ping .9s ease-out; }
+.m-tac-row b { font-weight: 600; }
+.m-tac-row > div { min-width: 0; }
+.m-tac-row q { display: block; font-size: 12.5px; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--m-muted); quotes: "“" "”"; }
+
+.m-act { padding: 12px 18px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.m-act .m-label { grid-column: 1 / -1; }
+.m-act-row { display: grid; gap: 6px; align-content: start; font-size: 14px; line-height: 1.25; font-weight: 600; padding: 9px 11px; border-radius: 9px; background: var(--m-bg); transition: background .35s, color .35s; }
+.m-act-row span { font: 400 11.5px/1 var(--f-mono); color: var(--m-muted); }
+.m-act-row.firing { background: #FBE3E0; }
+.m-act-row.firing span { color: var(--scam); font-weight: 600; }
+.m-act-row.done { background: var(--m-teal); color: #fff; }
+.m-act-row.done span { color: #CDEBE6; }
+
+.m-pipe { display: flex; align-items: center; gap: 10px; padding: 0 28px; background: var(--m-surface); border-top: 1px solid var(--m-line); font-size: 13px; color: #9AA8A5; }
+.m-pipe .node { display: flex; gap: 7px; align-items: center; white-space: nowrap; transition: color .3s; }
+.m-pipe .node i { width: 8px; height: 8px; border-radius: 50%; background: #CBD5D3; transition: background .3s, box-shadow .3s; }
+.m-pipe .node b { font-weight: 600; }
+.m-pipe .node span { font-family: var(--f-mono); font-size: 11.5px; }
+.m-pipe .node.on { color: var(--m-ink); }
+.m-pipe .node.on i { background: var(--low); box-shadow: 0 0 0 4px #DDF1E5; }
+.m-pipe .arr { color: #C3CDCB; }
+.m-pipe .sim { margin-left: auto; font: 600 11px/1 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; }
+
+/* presenter controls (outside the stage; auto-hide) */
+#ctl { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+  background: rgba(18,32,30,.92); color: #E4ECEA; border-radius: 12px; font: 500 13px/1 var(--f-body); box-shadow: 0 8px 24px rgba(0,0,0,.25);
+  width: min(720px, calc(100vw - 32px)); transition: opacity .3s; z-index: 10; }
+#ctl.hide { opacity: 0; pointer-events: none; }
+#ctl.never { display: none; }
+#ctl button { all: unset; cursor: pointer; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; }
+#ctl button:hover, #ctl button:focus-visible { background: rgba(255,255,255,.12); }
+#ctl button svg { width: 18px; height: 18px; fill: currentColor; }
+#ctl input[type=range] { flex: 1; min-width: 80px; accent-color: #5CC2B3; }
+#ctl .t { font: 400 12px/1 var(--f-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+#ctl .keys { font-size: 11px; color: #93A4A0; white-space: nowrap; }
+@media (max-width: 640px) { #ctl .keys { display: none; } }
+
+@keyframes blink { 50% { opacity: .35; } }
+@keyframes pulse { from { transform: scale(.85); } to { transform: scale(1.12); opacity: 0; } }
+@keyframes wiggle { 0%, 60%, 100% { transform: rotate(0); } 70% { transform: rotate(-10deg); } 80% { transform: rotate(10deg); } 90% { transform: rotate(-6deg); } }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+@keyframes flash { 0% { box-shadow: 0 0 0 0 rgba(210,55,43,.55); background: #FDEDEB; } 100% { box-shadow: 0 0 0 18px rgba(210,55,43,0); background: var(--m-surface); } }
+@keyframes coachIn { from { opacity: 0; transform: translateY(14px) scale(.94); } }
+@keyframes coachGlow { 0% { box-shadow: 0 0 0 0 rgba(60,214,186,.0); } 30% { box-shadow: 0 0 0 8px rgba(60,214,186,.28), 0 16px 44px rgba(14,107,96,.45); } 100% { box-shadow: 0 10px 30px rgba(14,107,96,.35); } }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes ping { 0% { box-shadow: 0 0 0 0 var(--dot); } 100% { box-shadow: 0 0 0 10px transparent; } }
+@keyframes dots { 0% { content: ""; } 25% { content: "."; } 50% { content: ".."; } 75% { content: "..."; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } .stroke path { stroke-dashoffset: 0; } }
+</style>
+</head>
+<body>
+<div class="m" id="stage">
+  <header class="m-top">
+    <div class="m-logo" id="logo"></div><div class="m-sep"></div>
+    <div class="m-who"><b id="elderName"></b><span id="elderLine"></span></div>
+    <div class="m-right"><span class="m-pill" id="pill"><i></i><span>Protected</span></span><span class="m-timer" id="timer">--:--</span></div>
+  </header>
+  <div class="m-body">
+    <section class="m-card m-tx">
+      <div class="m-tx-head"><span class="m-label">Live transcript</span><span class="m-label" id="txMeta" style="text-transform:none;letter-spacing:0"></span></div>
+      <div class="m-tx-scroll" id="txScroll">
+        <div class="m-empty" id="txEmpty"></div>
+        <div class="m-tx-list" id="txList"></div>
+      </div>
+      <div class="ov m-incoming off" id="ovIncoming"></div>
+      <div class="ov m-sum off" id="ovSummary"></div>
+    </section>
+    <aside class="m-side">
+      <section class="m-card m-risk" id="risk">
+        <span class="m-label">Scam risk</span>
+        <div class="m-risk-row"><div class="m-score" id="score">–</div>
+          <div class="m-level"><b id="levelName">No call</b><span id="levelSub">Scores start when the call connects</span></div></div>
+        <div class="m-bar"><div class="mask" id="barMask" style="left:0%"></div><div class="tick"></div></div>
+        <svg class="m-spark" id="spark" viewBox="0 0 400 46"></svg>
+        <div class="m-reason" id="reason"><em>Claude</em><span>Waiting for the call to connect.</span></div>
+      </section>
+      <section class="m-card m-tac" id="tactics"><span class="m-label">Tactics detected</span></section>
+      <section class="m-card m-act" id="actions"><span class="m-label">Actions</span></section>
+    </aside>
+  </div>
+  <footer class="m-pipe" id="pipe"></footer>
+  <div class="m-dim" id="dim"></div>
+  <div class="ov m-phone off" id="ovPhone"></div>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <linearGradient id="ellieGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7CF0D6"/><stop offset=".45" stop-color="#2FC4A6"/><stop offset="1" stop-color="#5B8CFF"/>
+      <animateTransform attributeName="gradientTransform" type="rotate" from="0 .5 .5" to="360 .5 .5" dur="5s" repeatCount="indefinite"/>
+    </linearGradient></defs></svg>
+</div>
+
+<div id="ctl">
+  <button id="bPlay" aria-label="Play or pause (space)"></button>
+  <button id="bReset" aria-label="Restart (R)"><svg viewBox="0 0 24 24"><path d="M12 5V2L7 6l5 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg></button>
+  <input type="range" id="scrub" min="0" step="0.01" value="0" aria-label="Demo position">
+  <span class="t" id="tRead">0:00 / 0:00</span>
+  <button id="bMute" aria-label="Mute (M)"></button>
+  <span class="keys">Space play · ←/→ beats · R restart · M mute · F full screen</span>
+</div>
+
+<script src="script.js"></script>
+<script src="audio/durations.js" onerror="window.ELLIE_AUDIO = null"></script>
+<script>
+(() => {
+const S = window.ELLIE_SCRIPT;
+const A = window.ELLIE_AUDIO || {};
+const params = new URLSearchParams(location.search);
+if (params.get('bg') === 'transparent') document.body.classList.add('transparent');
+const RENDER = params.get('render') === '1';   // video export: silent, time set from outside via ellie.renderAt(t)
+
+// ---------- timeline (seconds) ----------
+const LAG = 0.35;                              // speech-to-text lag shown on screen
+const estimate = text => Math.max(1.2, text.split(/\s+/).length / 2.6);
+const RING = { id: 'ring', start: 0.8, dur: A.ring ?? 4.8 };
+let t = RING.start + RING.dur + 0.3;
+const lines = S.lines.map(l => {
+  t += l.gap ?? 0;
+  const line = { ...l, start: t, dur: A[l.id] ?? estimate(l.say ?? l.text) };
+  t += line.dur;
+  return line;
+});
+const byId = Object.fromEntries(lines.map(l => [l.id, l]));
+const ann = lines.find(l => l.kind === 'announce');
+const coach = lines.find(l => l.kind === 'coach');
+const callStart = ann.start;
+const connectT = ann.start + ann.dur + 0.3;
+const checks = S.checks.map(c => ({ ...c, t: byId[c.after].start + byId[c.after].dur + c.delay }));
+const detect = checks.find(c => c.score >= S.threshold);
+const detectT = detect ? detect.t : Infinity;
+const smsT = coach.start + 1.4;
+const last = lines[lines.length - 1];
+const endT = last.start + last.dur + 0.5;
+const summaryT = endT + 2.2;
+const TOTAL = summaryT + 1.5;
+const flagT = {};                              // tactic -> time Claude first flagged it
+for (const c of checks) for (const k of c.tactics) flagT[k] ??= c.t;
+const tacticLevel = Object.fromEntries(S.tactics.map(x => [x.k, x.level]));
+const actionAt = { warn: coach.start, text: smsT, end: endT };
+
+const clips = [RING, ...lines.map(l => ({ id: l.id, start: l.start, dur: l.dur })),
+  { id: 'sms', start: smsT, dur: A.sms ?? 0.45 }, { id: 'hangup', start: endT, dur: A.hangup ?? 2.4 }];
+const BEATS = [0, RING.start, ann.start, connectT, ...checks.map(c => c.t), coach.start, endT, summaryT];
+
+// ---------- helpers ----------
+const $ = id => document.getElementById(id);
+const fmt = s => { s = Math.max(0, s); return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(Math.floor(s % 60)).padStart(2, '0')}`; };
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+const cache = new Map();
+const set = (el, key, val, apply) => { const k = el.id + key; if (cache.get(k) !== val) { cache.set(k, val); apply(val); } };
+const level = s => s == null ? null : s >= S.threshold ? ['scam', 'Likely scam'] : s >= 60 ? ['high', 'High risk'] : s >= 30 ? ['watch', 'Watch'] : ['low', 'Low risk'];
+const COL = { low: '#2F9E62', watch: '#C98A0E', high: '#E0661F', scam: '#D2372B' };
+const LOGO = `<svg viewBox="0 0 30 30" fill="none" aria-hidden="true"><circle cx="15" cy="15" r="14" fill="#0E6B60"/><g stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M8 13v4"/><path d="M12 10v10"/><path d="M16 8v14"/><path d="M20 11v8"/><path d="M23.5 14v2"/></g></svg>`;
+const callRel = abs => fmt(abs - callStart);
+
+// ---------- static content ----------
+$('logo').innerHTML = `${LOGO}Ellie`;
+$('elderName').textContent = S.elder.name;
+$('elderLine').textContent = `Protected line · ${S.elder.number}`;
+$('txEmpty').innerHTML = `${LOGO.replace('viewBox', 'width="44" height="44" viewBox')}<b>Waiting for a call</b>Ellie joins every call to ${esc(S.elder.first)}’s number and listens for scam tactics.`;
+$('ovIncoming').innerHTML = `<div class="m-call"><div class="m-rings"><span></span><span></span><b><svg width="28" height="28" viewBox="0 0 24 24" fill="#fff"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1z"/></svg></b></div>
+  <span class="m-label">Incoming call</span><div class="num">${S.caller.number}</div><div class="meta">Unknown number · ${S.caller.place}</div></div>`;
+const AVATAR = `<svg viewBox="0 0 30 30" fill="none" aria-hidden="true"><g stroke="#fff" stroke-width="2.6" stroke-linecap="round"><path d="M7 13v4"/><path d="M11.5 10v10"/><path d="M16 8v14"/><path d="M20.5 11v8"/><path d="M24 14v2"/></g></svg>`;
+$('ovPhone').innerHTML = `<div class="scr"><div class="island"></div>
+  <div class="status"><span>14:07</span><span class="icons">
+    <svg viewBox="0 0 18 11"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="6" rx="1"/><rect x="10" y="2.5" width="3" height="8.5" rx="1"/><rect x="15" y="0" width="3" height="11" rx="1"/></svg>
+    <svg viewBox="0 0 26 12"><rect x=".5" y=".5" width="22" height="11" rx="3" fill="none" stroke="#000" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5"/><rect x="23.5" y="4" width="2" height="4" rx="1" opacity=".4"/></svg></span></div>
+  <div class="head"><span class="back">‹</span><div class="avatar">${AVATAR}</div><span class="name">Ellie</span></div>
+  <div class="thread"><div class="meta"><b>Text Message</b><br>Today 14:07</div>
+    <div class="bubble">${esc(S.sms)} Call her: <a>${S.elder.number}</a></div></div>
+  <div class="compose"><span class="plus">+</span><span class="field">Text Message</span></div></div>`;
+
+const tacEls = S.tactics.map(x => {
+  const el = document.createElement('div');
+  el.className = 'm-tac-row'; el.style.setProperty('--dot', COL[x.level]); el.id = `tac-${x.k}`;
+  const quote = lines.flatMap(l => l.marks ?? []).find(m => m.tactic === x.k)?.phrase;
+  el.innerHTML = `<i></i><div><b>${x.name}</b><q hidden>${quote ? esc(quote) : ''}</q></div>`;
+  $('tactics').append(el); return [x.k, el];
+});
+
+const ACTS = [['warn', `Warn ${S.elder.first} privately`], ['text', `Text ${S.family.name} (${S.family.relation})`], ['end', 'End the call']];
+const actEls = ACTS.map(([k, name]) => {
+  const el = document.createElement('div'); el.className = 'm-act-row'; el.id = `act-${k}`;
+  el.innerHTML = `${name}<span></span>`; $('actions').append(el); return [k, el];
+});
+
+const PIPE = [['Call audio', 'Twilio stream'], ['Speech to text', 'Deepgram · ~300 ms'], ['Scam check', 'Claude Haiku'], ['Action', 'Twilio API']];
+$('pipe').innerHTML = PIPE.map(([n, s], i) => `<div class="node" id="pipe${i}"><i></i><b>${n}</b><span>${s}</span></div>`).join('<span class="arr">→</span>') + '<span class="sim">Simulated call</span>';
+
+// word / mark layout for each line
+for (const l of lines) {
+  const text = l.text;
+  l.words = [];
+  const re = /\S+/g; let m;
+  while ((m = re.exec(text))) l.words.push({ w: m[0], a: m.index, b: m.index + m[0].length, mark: null });
+  for (const mk of l.marks ?? []) {
+    const a = text.indexOf(mk.phrase); if (a < 0) { console.warn('mark not found', mk.phrase); continue; }
+    const b = a + mk.phrase.length;
+    for (const w of l.words) if (w.a >= a && w.b <= b + 1) { w.mark = mk; w.tail = w.b > b ? w.w.slice(b - w.a) : ''; }
+  }
+}
+
+function lineHTML(l, shown, T) {
+  let html = '', i = 0;
+  const ws = l.words.slice(0, shown);
+  while (i < ws.length) {
+    const mk = ws[i].mark;
+    if (!mk) { html += (html ? ' ' : '') + esc(ws[i].w); i++; continue; }
+    const grp = []; while (i < ws.length && ws[i].mark === mk) grp.push(ws[i++]);
+    const complete = grp.length === l.words.filter(w => w.mark === mk).length;
+    const tail = grp[grp.length - 1].tail ?? '';
+    const words = grp.map(w => w.w).join(' ');
+    const on = complete && T >= (flagT[mk.tactic] ?? Infinity);
+    const tag = { auth: 'authority', payment: 'gift cards' }[mk.tactic] ?? mk.tactic;
+    html += (html ? ' ' : '') + `<mark class="${tacticLevel[mk.tactic]}${on ? ' on' : ''}">${esc(tail ? words.slice(0, -tail.length) : words)}<sup>${tag}</sup></mark>${esc(tail)}`;
+  }
+  if (shown < l.words.length) {
+    html += '<span class="cursor"></span>';
+    if (l.kind === 'coach') html += ` <span class="ghost">${esc(l.words.slice(shown).map(w => w.w).join(' '))}</span>`;
+  }
+  return html;
+}
+
+// ---------- render(T): the whole screen is a pure function of time ----------
+const lineEls = new Map();
+let lastPhase = null;
+
+function scoreAt(T) {
+  let prev = 0, cur = null;
+  for (const c of checks) { if (c.t <= T) { prev = cur ? cur.score : 0; cur = c; } }
+  if (!cur) return null;
+  const p = clamp((T - cur.t) / 0.7), e = 1 - Math.pow(1 - p, 3);
+  return Math.round(prev + (cur.score - prev) * e);
+}
+
+function render(T) {
+  const phase = T < RING.start ? 'idle' : T < ann.start ? 'ringing' : T < connectT ? 'announcing' : T < detectT ? 'live'
+    : T < coach.start ? 'detected' : T < endT ? 'intervening' : 'ended';
+
+  // header
+  const PILL = { idle: ['', 'Protected'], ringing: ['ring', 'Incoming call'], announcing: ['live', 'Announcing'], live: ['live', 'Live'],
+    detected: ['alert', 'Scam detected'], intervening: ['alert', 'Intervening'], ended: ['ended', 'Call ended'] }[phase];
+  set($('pill'), 'p', phase, () => { $('pill').className = `m-pill ${PILL[0]}`; $('pill').lastElementChild.textContent = PILL[1]; });
+  set($('timer'), 't', T < callStart ? '--:--' : fmt(Math.min(T, endT) - callStart), v => $('timer').textContent = v);
+
+  // transcript
+  const visible = lines.filter(l => T >= l.start + LAG);
+  set($('txEmpty'), 'e', visible.length > 0 || T >= RING.start, v => $('txEmpty').hidden = v);
+  set($('txMeta'), 'm', visible.length ? 'English · 2 speakers' : '', v => $('txMeta').textContent = v);
+  for (const [id, el] of lineEls) if (!visible.some(l => l.id === id)) { el.remove(); lineEls.delete(id); }
+  let changed = false;
+  for (const l of visible) {
+    let el = lineEls.get(l.id);
+    if (!el) {
+      el = document.createElement('div');
+      el.className = `m-line ${l.kind ?? l.who}`;
+      const who = l.kind === 'announce' ? '' : l.kind === 'coach' ? `Ellie · only ${S.elder.first} hears this`
+        : l.who === 'caller' ? `Caller · ${S.caller.number}` : S.elder.first;
+      const EAR = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7h2a5 5 0 0 1 10 0c0 1.9-.9 2.9-1.9 3.9-1 .9-2.1 2-2.1 4.1a2 2 0 0 1-4 0H7a4 4 0 0 0 8 0c0-1.2.6-1.8 1.5-2.7C17.6 13.2 19 11.8 19 9a7 7 0 0 0-7-7zm0 4a3 3 0 0 0-3 3h2a1 1 0 1 1 2 0c0 .6-.3.9-.8 1.3-.6.5-1.2 1.2-1.2 2.7h2c0-.6.3-.9.8-1.3.6-.5 1.2-1.2 1.2-2.7a3 3 0 0 0-3-3z"/></svg>';
+      el.innerHTML = `${who ? `<span class="who">${l.kind === 'coach' ? EAR : ''}${esc(who)}</span>` : ''}<div class="txt"></div>`;
+      if (l.kind === 'coach') el.needsStroke = true;
+      // keep DOM order = script order
+      const next = [...lineEls.entries()].find(([id]) => byId[id].start > l.start);
+      $('txList').insertBefore(el, next ? next[1] : null);
+      lineEls.set(l.id, el); changed = true;
+    }
+    const shown = Math.ceil(l.words.length * clamp((T - l.start - LAG) / l.dur));
+    const sig = `${shown}|${(l.marks ?? []).map(m => T >= (flagT[m.tactic] ?? Infinity)).join()}`;
+    if (el.dataset.sig !== sig) {
+      el.dataset.sig = sig; changed = true;
+      el.lastElementChild.innerHTML = l.kind === 'announce' ? `Played to caller: “${lineHTML(l, shown, T)}”` : lineHTML(l, shown, T);
+    }
+  }
+  for (const el of lineEls.values()) if (el.needsStroke) { el.needsStroke = false; addStroke(el); }
+  if (changed) $('txScroll').scrollTop = $('txScroll').scrollHeight;
+  set($('dim'), 'd', T >= coach.start + LAG && T < coach.start + coach.dur + 0.9, v => $('stage').classList.toggle('spot', v));
+
+  // overlays
+  set($('ovIncoming'), 'o', phase === 'ringing', v => $('ovIncoming').classList.toggle('off', !v));
+  set($('ovPhone'), 'o', T >= smsT && T < summaryT, v => $('ovPhone').classList.toggle('off', !v));
+  set($('ovSummary'), 'o', T >= summaryT, v => { $('ovSummary').classList.toggle('off', !v); if (v) buildSummary(); });
+
+  // risk
+  const score = T < connectT ? null : scoreAt(T);
+  const lv = level(score);
+  const risk = $('risk');
+  risk.style.setProperty('--lvl', lv ? COL[lv[0]] : 'var(--m-muted)');
+  set($('score'), 's', score, v => $('score').innerHTML = v == null ? '–' : `${v}<small>/100</small>`);
+  set($('levelName'), 'l', `${lv ? lv[1] : T >= connectT ? 'Listening' : 'No call'}`, v => $('levelName').textContent = v);
+  const lastCheck = [...checks].reverse().find(c => c.t <= T);
+  set($('levelSub'), 'l', T < connectT ? 'Scores start when the call connects' : lastCheck ? `Last check ${callRel(lastCheck.t)}` : 'First check in a few seconds',
+    v => $('levelSub').textContent = v);
+  set($('barMask'), 'b', score ?? 0, v => $('barMask').style.left = `${v}%`);
+  set(risk, 'f', T >= detectT && T < detectT + 1, v => risk.classList.toggle('flash', v));
+  set($('spark'), 'k', `${score}|${checks.filter(c => c.t <= T).length}|${T >= connectT}`, () => $('spark').innerHTML = spark(T, score));
+
+  const thinking = checks.find(c => T >= c.t - 0.9 && T < c.t);
+  const reasonText = T < connectT ? 'Waiting for the call to connect.' : thinking ? 'Checking the conversation' : lastCheck ? lastCheck.reason : 'Listening to the conversation.';
+  set($('reason'), 'r', `${!!thinking}|${reasonText}`, () => {
+    $('reason').classList.toggle('thinking', !!thinking);
+    $('reason').lastElementChild.textContent = reasonText;
+  });
+
+  // tactics
+  for (const [k, el] of tacEls) {
+    const on = T >= (flagT[k] ?? Infinity), fresh = on && T < flagT[k] + 1;
+    set(el, 'c', `${on}|${fresh}`, () => { el.classList.toggle('on', on); el.classList.toggle('new', fresh); el.querySelector('q').hidden = !on; });
+  }
+
+  // actions
+  for (const [k, el] of actEls) {
+    const firingFrom = k === 'end' ? last.start : detectT;
+    const st = T >= actionAt[k] ? 'done' : T >= firingFrom ? 'firing' : 'armed';
+    const sub = st === 'done' ? `Done ${callRel(actionAt[k])}` : st === 'firing' ? (k === 'end' ? 'Ending…' : 'Triggering…') : `Ready at ${S.threshold}`;
+    set(el, 's', `${st}`, () => { el.className = `m-act-row ${st}`; el.lastElementChild.textContent = sub; });
+  }
+
+  // pipeline
+  const speaking = lines.some(l => l.kind !== 'announce' && T >= l.start && T < l.start + l.dur + LAG);
+  const pipeOn = [T >= RING.start && T < endT, speaking, !!thinking, T >= detectT && T < endT + 0.5];
+  pipeOn.forEach((on, i) => set($(`pipe${i}`), 'o', on, v => $(`pipe${i}`).classList.toggle('on', v)));
+
+  if (phase !== lastPhase) { lastPhase = phase; parent !== window && parent.postMessage({ type: 'ellie:phase', phase, t: T }, '*'); }
+}
+
+// rounded-rect path with per-corner radii, drawn `g` px outside the bubble. It goes on the line (first child),
+// not inside .txt, because .txt is re-rendered as words stream in.
+function addStroke(line) {
+  const txt = line.lastElementChild;
+  const g = 6, w = txt.offsetWidth + 2 * g, h = txt.offsetHeight + 2 * g;
+  const [tl, tr, br, bl] = [14 + g, 4 + g, 14 + g, 14 + g];
+  const d = `M${tl},0 H${w - tr} A${tr},${tr} 0 0 1 ${w},${tr} V${h - br} A${br},${br} 0 0 1 ${w - br},${h} H${bl} A${bl},${bl} 0 0 1 0,${h - bl} V${tl} A${tl},${tl} 0 0 1 ${tl},0 Z`;
+  line.insertAdjacentHTML('afterbegin', `<svg class="stroke" style="left:${txt.offsetLeft - g}px;top:${txt.offsetTop - g}px;width:${w}px;height:${h}px" viewBox="0 0 ${w} ${h}"><path pathLength="1" d="${d}"/></svg>`);
+}
+
+function spark(T, score) {
+  const W = 400, H = 46, span = endT - callStart;
+  const x = s => 4 + clamp((s - callStart) / span) * (W - 8), y = s => H - 4 - (s / 100) * (H - 8);
+  let svg = [25, 50, 75].map(s => `<line x1="0" x2="${W}" y1="${y(s)}" y2="${y(s)}" stroke="#EDF1F0"/>`).join('');
+  svg += `<line x1="0" x2="${W}" y1="${y(S.threshold)}" y2="${y(S.threshold)}" stroke="#D2372B" stroke-dasharray="4 4" opacity=".55"/>
+    <text x="${W - 4}" y="${y(S.threshold) - 4}" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="10" fill="#A82318">ACTS AT ${S.threshold}</text>`;
+  if (T < connectT) return svg;
+  const done = checks.filter(c => c.t <= T);
+  const pts = [[connectT, 0], ...done.map((c, i) => [c.t, i === done.length - 1 ? score : c.score])];
+  pts.push([Math.min(T, endT), pts[pts.length - 1][1]]);
+  const d = pts.map(([t, s], i) => `${i ? 'L' : 'M'}${x(t).toFixed(1)},${y(s).toFixed(1)}`).join(' ');
+  const [lt, ls] = pts[pts.length - 1], col = COL[level(ls)[0]];
+  return svg + `<path d="${d} L${x(lt).toFixed(1)},${H} L${x(connectT).toFixed(1)},${H} Z" fill="${col}" opacity=".10"/>
+    <path d="${d}" fill="none" stroke="${col}" stroke-width="2.5" stroke-linejoin="round"/>
+    <circle cx="${x(lt)}" cy="${y(ls)}" r="5" fill="${col}" stroke="#fff" stroke-width="2"/>`;
+}
+
+function buildSummary() {
+  const peak = Math.max(...checks.map(c => c.score));
+  const items = [[ann.start, 'var(--low)', 'Caller heard the protection announcement'],
+    ...checks.filter(c => c.summary).map(c => [c.t, COL[level(c.score)[0]], c.summary]),
+    [coach.start, 'var(--m-teal)', `Warned ${S.elder.first} privately and texted ${S.family.name}`],
+    [endT, 'var(--m-teal)', `${S.elder.first} hung up`]];
+  $('ovSummary').innerHTML = `<div><span class="m-label">Call summary · just now</span><h3>Scam call stopped</h3></div>
+    <div class="stats"><div><b>${fmt(endT - callStart)}</b><span>Call length</span></div><div><b style="color:var(--scam)">${peak}</b><span>Peak risk</span></div><div><b>€0</b><span>Money lost</span></div></div>
+    <ol>${items.map(([t, dot, txt], i) => `<li style="animation-delay:${i * 60}ms"><time>${callRel(t)}</time><i style="--dot:${dot}"></i>${esc(txt)}</li>`).join('')}</ol>`;
+}
+
+// ---------- audio ----------
+// Served over http: every clip is decoded up front and scheduled on the Web Audio clock, which also drives T,
+// so sound and screen can't drift. Opened from file:// (fetch is blocked there): plain <audio> elements, loosely synced.
+let muted = false;
+const useWebAudio = !RENDER && location.protocol.startsWith('http') && 'AudioContext' in window;
+let ctx, gain, sources = [], ctxStart = 0, ready = Promise.resolve();
+
+if (useWebAudio) {
+  ctx = new AudioContext();
+  gain = ctx.createGain(); gain.connect(ctx.destination);
+  ready = Promise.all(clips.map(c => fetch(`audio/${c.id}.mp3`)
+    .then(r => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
+    .then(b => ctx.decodeAudioData(b))
+    .then(buf => { c.buf = buf; })
+    .catch(() => { c.broken = true; })));
+} else if (!RENDER) {
+  for (const c of clips) {
+    c.el = new Audio(`audio/${c.id}.mp3`);
+    c.el.preload = 'auto';
+    c.el.onerror = () => { c.broken = true; };
+  }
+}
+
+function stopAudio() {
+  for (const src of sources) { try { src.stop(); } catch {} }
+  sources = [];
+  if (!useWebAudio) for (const c of clips) if (c.el && !c.el.paused) c.el.pause();
+}
+
+// schedule every clip that hasn't finished yet, relative to the current T
+function startAudio() {
+  stopAudio();
+  if (!useWebAudio || ctx.state !== 'running') return;
+  const now = ctx.currentTime + 0.05;          // small lead so the first clip isn't clipped
+  ctxStart = now - T;
+  for (const c of clips) {
+    if (!c.buf || T >= c.start + c.buf.duration) continue;
+    const src = ctx.createBufferSource();
+    src.buffer = c.buf; src.connect(gain);
+    if (T > c.start) src.start(now, T - c.start); else src.start(ctxStart + c.start);
+    sources.push(src);
+  }
+}
+
+// file:// fallback only: start clips as T reaches them; re-seek only on large drift (tab was hidden, etc.)
+function syncElements() {
+  for (const c of clips) {
+    if (c.broken || !c.el) continue;
+    const inRange = playing && T >= c.start && T < c.start + c.dur;
+    if (!inRange) { if (!c.el.paused) c.el.pause(); continue; }
+    const want = T - c.start;
+    c.el.muted = muted;
+    if (c.el.paused) { try { c.el.currentTime = want; } catch {} c.el.play().catch(() => {}); }
+    else if (Math.abs(c.el.currentTime - want) > 1.0) c.el.currentTime = want;
+  }
+}
+
+// ---------- clock & controls ----------
+let T = 0, playing = false, lastNow = performance.now();
+const scrub = $('scrub'); scrub.max = TOTAL.toFixed(2);
+const ICON = { play: '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>', pause: '<svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>',
+  vol: '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4z"/></svg>',
+  mute: '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm16.6 3 2.1-2.1-1.4-1.4-2.1 2.1-2.1-2.1-1.4 1.4 2.1 2.1-2.1 2.1 1.4 1.4 2.1-2.1 2.1 2.1 1.4-1.4z"/></svg>' };
+const fmtShort = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+function ui() {
+  $('bPlay').innerHTML = playing ? ICON.pause : ICON.play; $('bMute').innerHTML = muted ? ICON.mute : ICON.vol;
+  if (gain) gain.gain.value = muted ? 0 : 1;
+}
+let starting = false;
+async function play() {
+  if (playing || starting) return;
+  if (T >= TOTAL - 0.05) T = 0;
+  starting = true;
+  if (ctx) await ctx.resume().catch(() => {});  // must run inside the click/key gesture, so it comes before awaiting `ready`
+  await ready;
+  starting = false;
+  playing = true; lastNow = performance.now();
+  startAudio(); ui();
+}
+function pause() { if (playing) T = clockT(); playing = false; stopAudio(); ui(); }
+function seek(t) { T = clamp(t, 0, TOTAL); if (playing) startAudio(); else stopAudio(); }
+function reset() { pause(); seek(0); }
+const api = { play, pause, toggle: () => playing ? pause() : play(), reset, seek };
+
+// The audio clock only runs once the browser allows sound (after a click/key in this frame). Until then, or without
+// Web Audio, time comes from the frame clock and the demo runs silently rather than freezing.
+const audioLive = () => useWebAudio && ctx.state === 'running';
+const clockT = () => audioLive() ? ctx.currentTime - ctxStart : T;
+if (ctx) ctx.onstatechange = () => { if (playing && ctx.state === 'running') startAudio(); };
+addEventListener('pointerdown', () => ctx && ctx.state !== 'running' && ctx.resume().catch(() => {}), true);
+
+function frame(now) {
+  const dt = (now - lastNow) / 1000; lastNow = now;
+  if (playing) {
+    T = audioLive() ? clockT() : T + Math.min(dt, 0.1);
+    if (T >= TOTAL) { T = TOTAL; pause(); }
+  }
+  render(Math.max(0, T));
+  if (!useWebAudio) syncElements();
+  scrub.value = T.toFixed(2);
+  $('tRead').textContent = `${fmtShort(Math.max(0, T))} / ${fmtShort(TOTAL)}`;
+  requestAnimationFrame(frame);
+}
+
+$('bPlay').onclick = api.toggle;
+$('bReset').onclick = reset;
+$('bMute').onclick = () => { muted = !muted; ui(); };
+scrub.oninput = () => seek(+scrub.value);
+addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' && e.key !== ' ') return;
+  if (e.key === ' ') { e.preventDefault(); api.toggle(); }
+  else if (e.key === 'r' || e.key === 'R') reset();
+  else if (e.key === 'm' || e.key === 'M') { muted = !muted; ui(); }
+  else if (e.key === 'f' || e.key === 'F') { (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()).catch(() => {}); }
+  else if (e.key === 'ArrowRight') seek(BEATS.find(b => b > T + 0.05) ?? TOTAL);
+  else if (e.key === 'ArrowLeft') seek([...BEATS].reverse().find(b => b < T - 0.3) ?? 0);
+  else return;
+  poke();
+});
+// click on the stage toggles play (handy when presenting with a clicker/mouse)
+$('stage').addEventListener('click', api.toggle);
+
+// shell integration: postMessage({ type: 'ellie:play' | 'ellie:pause' | 'ellie:toggle' | 'ellie:reset' | 'ellie:seek', t })
+addEventListener('message', e => {
+  const d = e.data; if (!d || typeof d.type !== 'string' || !d.type.startsWith('ellie:')) return;
+  const fn = api[d.type.slice(6)]; if (fn) fn(d.t);
+});
+window.ellie = api;
+
+// controls auto-hide
+const ctl = $('ctl'); let hideTimer;
+if (params.get('controls') === '0') ctl.classList.add('never');
+function poke() { ctl.classList.remove('hide'); clearTimeout(hideTimer); hideTimer = setTimeout(() => ctl.classList.add('hide'), 2500); }
+addEventListener('mousemove', poke); poke();
+
+// fit the 1200×750 stage into the window
+function fit() {
+  const s = Math.min(innerWidth / 1200, innerHeight / 750);
+  const stage = $('stage');
+  stage.style.transform = `translate(${(innerWidth - 1200 * s) / 2}px, ${(innerHeight - 750 * s) / 2}px) scale(${s})`;
+}
+addEventListener('resize', fit); fit();
+
+if (!window.ELLIE_AUDIO) console.warn('audio/durations.js missing: run `node build-audio.mjs --say` (timings are estimated, no sound).');
+window.ellie.renderAt = t => { T = clamp(t, 0, TOTAL); render(T); };
+window.ellie.duration = TOTAL;
+ui(); render(0); if (!RENDER) requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
