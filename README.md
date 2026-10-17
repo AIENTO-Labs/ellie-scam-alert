@@ -6,6 +6,7 @@
 
 - Try it: [Ask Ellie](https://claude.ai/artifact/FhAiZYWzYGdkVUK1qzXKMR) (paste a message, Claude answers)
 - Watch it: [2-minute demo video](https://drive.google.com/file/d/11O24gQOdhJmWJ1RnxpbtBoRRiZifuRes/view?usp=sharing)
+- Watch the call: [call demo video, 1:24](https://drive.google.com/file/d/12LQO1TQQdEMnXaLGRYHTciPo-H4UdPCD/view?usp=sharing) (a scam call stopped live, then the report for the police)
 - Run it: see "How to run it" below
 
 ## Audience, problem, demo (one sentence each)
@@ -57,7 +58,7 @@ Score a call transcript from the command line:
 python backend/scoring/score.py data/scam-transcripts/fake-police-rose.md --offline
 ```
 
-**Demo video:** `demo/call-demo.mp4`
+**Call demo video:** [watch on Google Drive](https://drive.google.com/file/d/12LQO1TQQdEMnXaLGRYHTciPo-H4UdPCD/view?usp=sharing), or `demo/call-demo.mp4` in the repo
 
 ## Screenshots / demo
 
