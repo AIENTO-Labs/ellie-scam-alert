@@ -15,6 +15,7 @@ Summary of how the plan evolved, so every teammate's Claude has the same backgro
 | 14:14, 14:37 | Jonno posted the real call flow: Twilio forwarding, Media Streams, Deepgram STT, Claude Haiku every 10 to 15 s, coach mode, forwarding loop and caller ID gotchas. See [docs/architecture.md](../docs/architecture.md). |
 | 14:20 | Repo created as `AIENTO-Labs/ellie-scam-alert` (private until João flips it public), all teammates invited. |
 | 14:33 | Final roles set (below). Scoring approach and model choice written up in [docs/scoring.md](../docs/scoring.md). |
+| 14:45 | Jonno pushed `app/call-demo` and `demo/call-demo.mp4`: Rose Miller, Detective Weber, €2,000 Google Play cards, 0 to 100 score, Ellie acts at 80, ElevenLabs voices. Scorer and docs aligned to it; real scorer crosses 80 on the same line as the demo. |
 | 14:35 | Audience widened: older adults and anyone vulnerable to phone scams, with protectors (family, carers, a trusted organisation) getting the alerts. |
 
 ## Roles
@@ -29,7 +30,6 @@ Summary of how the plan evolved, so every teammate's Claude has the same backgro
 
 ## Open at 14:35
 
-- Demo scenario: fake police (Jonno's beats) or fake bank fraud. Pick one so dialogue, scoring tests and slides match.
 - Source for the annual loss figure (README still says 160 billion, unsourced).
 - Repo must be made public before 16:00 (João).
 - Demo video link (Google Drive, set to anyone with the link) goes into the Tally form, which is filled but not submitted.
