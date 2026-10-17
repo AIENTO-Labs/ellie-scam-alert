@@ -103,7 +103,11 @@ const TACTICS = [
   ["isolation","Keeps you on the line",.1,["stay on the line","don't hang up","do not hang up","stay with me"]],
 ];
 const ELDER = "Hilde", FAMILY = "Anna";
-const WARNING = `${ELDER}, this is Ellie. This sounds like a scam. Real police and banks never ask for gift cards or codes. You can hang up now.`;
+const DEFAULT_WARNING = `${ELDER}, this is Ellie. This sounds like a scam. Real police and banks never ask for gift cards or codes. You can hang up now.`;
+let WARNING = DEFAULT_WARNING, SCENARIO = "";
+// Claude endpoint for the static site: set ELLIE_API here, or open the page with ?api=https://.../webhook/ellie-score (see backend/n8n/).
+const ELLIE_API = new URLSearchParams(location.search).get("api") || "";
+const SCENARIOS = {fake_police:"Fake police call",bank_fraud:"Fake bank call",grandchild:"Grandchild trick",tech_support:"Fake tech support",tax_office:"Fake tax office",parcel:"Parcel scam",investment:"Investment scam",other:"Scam call"};
 let lines = [], best = 0, acted = false, rec = null, t0 = 0, tick = null, pending = null;
 
 function rules(text){
@@ -114,6 +118,12 @@ function rules(text){
   return { risk: Math.round(Math.min(1,w)*100), hits, reason: hits.length ? "Flagged: " + hits.map(h=>h.label.toLowerCase()).join(", ") + "." : "Nothing typical of a scam yet.", engine: "rules" };
 }
 async function backend(text){
+  // 0. A configured Claude endpoint (the n8n webhook from backend/n8n/, works from the static site)
+  if (ELLIE_API) try {
+    const r = await fetch(ELLIE_API, {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text,channel:"call"})});
+    if (r.ok){ const v = await r.json(); if (v.warning) WARNING = v.warning; if (v.scenario) SCENARIO = v.scenario;
+      return { risk: v.score, hits: (v.tactics||[]).map(t=>({label:(TACTICS.find(x=>x[0]===({authority_impersonation:"auth",payment_request:"payment",credential_request:"credentials",remote_access:"remote",emotional_manipulation:"emotion"}[t.id]||t.id))||[,t.id])[1],evidence:t.evidence})), reason: v.reason, engine: "Claude (" + (SCENARIOS[v.scenario]||"scam") + ")" }; }
+  } catch(e) {}
   // 1. Ekaterina's Node backend (npm start in backend/, port 8080)
   try {
     const r = await fetch("http://localhost:8080/api/score", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text,channel:"call"})});
@@ -122,7 +132,7 @@ async function backend(text){
   // 2. The Python MVP server (python backend/server.py, port 8000)
   try {
     const r = await fetch("/api/check", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text})});
-    if (r.ok){ const v = await r.json(); return { risk: v.score, hits: (v.tactics||[]).map(t=>({label:t.name,evidence:t.evidence})), reason: v.reason, engine: "Claude" }; }
+    if (r.ok){ const v = await r.json(); if (v.warning) WARNING = v.warning; return { risk: v.score, hits: (v.tactics||[]).map(t=>({label:t.name,evidence:t.evidence})), reason: v.reason, engine: "Claude" }; }
   } catch(e) {}
   return null;
 }
@@ -145,7 +155,7 @@ function renderScore(res){
 }
 function act(){
   acted = true;
-  document.getElementById("status").textContent = "Scam detected"; document.getElementById("status").className = "pill scam";
+  document.getElementById("status").textContent = SCENARIOS[SCENARIO] || "Scam detected"; document.getElementById("status").className = "pill scam";
   document.getElementById("banner").classList.add("show");
   addLine(WARNING, "ellie");
   const sms = `Possible scam call to Mum right now. The caller claimed authority and asked for money or codes. Ellie warned her. Call her when you can.`;
@@ -191,7 +201,7 @@ function stop(){
   document.getElementById("start").disabled = false; document.getElementById("stop").disabled = true;
 }
 function reset(){
-  stop(); lines = []; best = 0; acted = false;
+  stop(); lines = []; best = 0; acted = false; WARNING = DEFAULT_WARNING; SCENARIO = "";
   document.getElementById("transcript").innerHTML = ""; document.getElementById("banner").classList.remove("show"); document.getElementById("sms").classList.remove("show");
   document.getElementById("status").textContent = "Line protected"; document.getElementById("status").className = "pill"; document.getElementById("timer").textContent = "00:00";
   renderScore({risk:0,hits:[],reason:"Listening for authority claims, urgency, secrecy, threats, requests for money or codes.",engine:"nothing yet"});

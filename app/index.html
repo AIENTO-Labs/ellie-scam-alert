@@ -127,7 +127,11 @@ function rules(text){
   const advice=score>=60?"Do not reply, click or pay. Call the person or company on a number you already know.":score>=30?"Check with someone you trust before you do anything.":"No action needed. If anything feels off, ask a family member.";
   return {score,tactics:hits,reason,advice,engine:"rules"};
 }
+const ELLIE_API = new URLSearchParams(location.search).get("api") || "";
 async function claude(text){
+  if(ELLIE_API){ const r=await fetch(ELLIE_API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text,channel:"sms"})}); if(!r.ok) throw new Error("api"); const v=await r.json();
+    const NAMES={authority_impersonation:"Pretends to be an official or company",urgency:"Pressure to act fast",secrecy:"Asks you to keep it secret",threat:"Threatens a loss",payment_request:"Asks for money",credential_request:"Asks for codes or passwords",remote_access:"Asks you to install a remote access app",emotional_manipulation:"Plays on your feelings",isolation:"Tries to keep you on the line"};
+    return {score:v.score,reason:v.reason,advice:v.advice,tactics:(v.tactics||[]).map(t=>({id:t.id,name:NAMES[t.id]||t.id,evidence:t.evidence}))}; }
   const r=await fetch("/api/check",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text})});
   if(!r.ok) throw new Error("server");
   return r.json();
