@@ -85,10 +85,10 @@ slides/      slide images and PDF for the finals
 
 | Name | Role / background |
 |---|---|
-| João Diogo | Founder: scoring model, repo, README |
-| Jonno | Product or design: call screen, demo video |
-| Gamei Chin | Pitch, storytelling, Ellie avatar |
-| Anna Son | Pitch, storytelling, Ellie avatar |
+| João Diogo | Builder: scoring model, repo, README |
+| Jonno Hill | Product or design: call screen, demo video |
+| Gamei Chin | Domain Expert: Market Positioning, GTM |
+| Anna Son | Domain Expert: Branding, Story Telling |
 | Ekaterina | Builder: infrastructure, call flow, backend |
 
 ## Credits
