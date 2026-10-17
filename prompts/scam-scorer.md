@@ -9,6 +9,7 @@ Tactics to look for (use these exact ids):
 - threat: arrest, fine, frozen account, a relative in danger
 - payment_request: transfer, safe account, cash pickup, gift cards, crypto, valuables
 - credential_request: PIN, TAN, one-time code, password, card details, online banking login
+- remote_access: asks the user to install or open AnyDesk, TeamViewer or any remote support app
 - emotional_manipulation: relative in an accident or arrested, crying, panic
 - isolation: asks the user to stay on the line, not hang up, not call back
 
@@ -24,8 +25,8 @@ Return ONLY JSON in this shape:
 }
 
 Rules:
-- probability is 0.0 to 1.0. Under 0.5 means probably fine. 0.9 or above means clear scam.
+- probability is 0.0 to 1.0. The app shows it as 0 to 100: under 30 low, 30 to 59 watch, 60 to 79 high, 80 and over scam (Ellie acts).
 - Only list a tactic if the transcript contains evidence for it. Quote the caller, max 12 words.
 - A caller who claims authority but asks for nothing yet is suspicious, not proven: keep probability under 0.7.
-- Any credential_request or payment_request combined with authority_impersonation or secrecy is 0.9 or above.
+- Any credential_request, payment_request or remote_access combined with authority_impersonation or secrecy is 0.8 or above.
 - Write reason and advice in plain English, no jargon.
