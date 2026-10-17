@@ -1,11 +1,15 @@
 {
-  "builds": [
-    { "src": "api/check.py", "use": "@vercel/python" },
-    { "src": "app/**", "use": "@vercel/static" }
+  "redirects": [
+    { "source": "/", "destination": "/app/", "permanent": false },
+    { "source": "/live", "destination": "/app/live.html", "permanent": false },
+    { "source": "/call", "destination": "/app/call-demo/", "permanent": false },
+    { "source": "/ask", "destination": "/app/", "permanent": false }
   ],
-  "routes": [
-    { "src": "/api/check", "dest": "/api/check.py" },
-    { "src": "/", "dest": "/app/index.html" },
-    { "src": "/(.*)", "dest": "/app/$1" }
+  "headers": [
+    { "source": "/api/(.*)", "headers": [
+      { "key": "Access-Control-Allow-Origin", "value": "*" },
+      { "key": "Access-Control-Allow-Methods", "value": "POST, OPTIONS" },
+      { "key": "Access-Control-Allow-Headers", "value": "Content-Type" }
+    ] }
   ]
 }
