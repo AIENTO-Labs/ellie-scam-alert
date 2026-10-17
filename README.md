@@ -11,7 +11,7 @@
 
 <p align="center">
   <a href="https://claude.ai/artifact/FhAiZYWzYGdkVUK1qzXKMR"><img alt="Try Ask Ellie" src="https://img.shields.io/badge/Try_it-Ask_Ellie-1F2F45?style=for-the-badge"></a>
-  <a href="https://drive.google.com/file/d/11O24gQOdhJmWJ1RnxpbtBoRRiZifuRes/view?usp=sharing"><img alt="Watch the 2-minute demo" src="https://img.shields.io/badge/Watch-2--min_demo-C9A15B?style=for-the-badge"></a>
+  <a href="https://drive.google.com/file/d/12LQO1TQQdEMnXaLGRYHTciPo-H4UdPCD/view?usp=sharing"><img alt="Watch the 2-minute demo" src="https://img.shields.io/badge/Watch-2--min_demo-C9A15B?style=for-the-badge"></a>
   <a href="#-run-it"><img alt="Run it" src="https://img.shields.io/badge/Run_it-locally-F3DEC4?style=for-the-badge"></a>
 </p>
 
@@ -71,7 +71,7 @@ Scoring model and thresholds: **[docs/scoring.md](docs/scoring.md)**
                                         │            ▲
                                         │     rules layer runs alongside (demo never depends on one API call)
                                         ▼
-                       score 0–100 ─► warning to the user only ─► text to the family
+                       score 0 to 100 ─► warning to the user only ─► text to the family
                                         │
                                         ▼
                        Claude Sonnet: family message · authority report · "was that real?" chat
@@ -83,6 +83,29 @@ Scoring model and thresholds: **[docs/scoring.md](docs/scoring.md)**
 - **Companion chat:** answers *"was that real?"* after the call.
 
 All prompts live in [`prompts/`](prompts/).
+
+## ⚡ Try it in 60 seconds, nothing to install
+
+| | Link | What you see |
+|---|---|---|
+| ▶️ | [Demo video, 1:24](https://drive.google.com/file/d/12LQO1TQQdEMnXaLGRYHTciPo-H4UdPCD/view?usp=sharing) | Ellie stops a fake police call to Hildegard Müller |
+| 🧪 | [Ask Ellie](https://claude.ai/artifact/FhAiZYWzYGdkVUK1qzXKMR) | Paste a message, Claude scores it live |
+| 📞 | [Call demo](https://aiento-labs.github.io/ellie-scam-alert/app/call-demo/) | The simulated call, with audio, in the browser |
+| 🎙️ | [Live call](https://aiento-labs.github.io/ellie-scam-alert/app/live.html) | Your microphone is the phone line: speak as the caller, watch the score, hear Ellie step in at 80 |
+| 📊 | [Pitch deck](slides/ellie-pitch-deck.pdf) | 11 slides: problem, Ellie, demo, how Claude is used |
+
+The two GitHub Pages links run on built-in rules (a static site holds no API key). Add `?api=https://<your-n8n>/webhook/ellie-score` to score through Claude, see [backend/n8n/](backend/n8n/), or run it locally below.
+
+## ✅ What is real and what is simulated
+
+| Piece | Status |
+|---|---|
+| Scoring: rules layer plus Claude Haiku, 0 to 100, Ellie acts at 80 | **Real.** `backend/scoring/score.py`, `prompts/scam-scorer.md`, offline tests in `tests/` |
+| Ask Ellie: paste an SMS, WhatsApp or email, get a verdict | **Real.** Claude through `backend/server.py` or the claude.ai page; rules fallback without a key |
+| Live call page: browser speech to text, scoring, spoken warning | **Real.** `app/live.html` |
+| Node backend: Twilio call flow, Deepgram, scoring, alerts, reports | **Real, tested with simulated calls** (21 tests). Not yet connected to a phone number |
+| The call in the video | **Simulated.** Scripted lines with ElevenLabs voices; the scores shown match what the real scorer produces on the same lines (`docs/scoring.md`) |
+| Synthetic-voice detection | **Designed.** A scoring input exists (`--voice`); the detector is a vendor on the roadmap |
 
 ## 🚀 Run it
 
@@ -98,7 +121,7 @@ The web app (`app/index.html`) has three parts:
 
 | Part | What you can do |
 |---|---|
-| **Ask Ellie** | Paste an SMS, WhatsApp or email and get a 0–100 scam score, the tactics found, a plain-language reason and what to do next. Uses Claude when the server has a key and falls back to built-in rules otherwise, so it always works. |
+| **Ask Ellie** | Paste an SMS, WhatsApp or email and get a 0 to 100 scam score, the tactics found, a plain-language reason and what to do next. Uses Claude when the server has a key and falls back to built-in rules otherwise, so it always works. |
 | **Call protection** (`app/call-demo`) | Jonno's simulated scam call: live transcript, score, Ellie's private warning at 80, text to the family. |
 | **Live call** (`app/live.html`) | The laptop microphone is the phone line. Open it in Chrome, click *Answer the call*, and let someone play the caller or put a phone on speaker. Speech to text runs in the browser, the backend scores each line, and Ellie speaks the warning out loud at 80. Browsers without speech recognition get a typed fallback. |
 
@@ -116,24 +139,46 @@ cd backend && npm install && npm start
 
 The live page then scores through it. Details in [backend/README.md](backend/README.md).
 
-## 🎬 Demo
+**Tests**
 
-- ▶️ [2-minute demo video](https://drive.google.com/file/d/11O24gQOdhJmWJ1RnxpbtBoRRiZifuRes/view?usp=sharing) (also in `demo/call-demo.mp4`)
-- 🧪 [Ask Ellie, live](https://claude.ai/artifact/FhAiZYWzYGdkVUK1qzXKMR): paste a message, Claude answers
-- 🗒️ Demo script: [docs/demo-script.md](docs/demo-script.md)
-- 🖼️ Slides: `slides/` *(to be added)*
+```bash
+python tests/test_scoring.py        # scorer: bands, combination rule, demo transcript crosses 80
+cd backend && npm test              # 21 tests: scoring, API, security, Twilio flow, Claude path
+```
+
+## 🏗️ Architecture
+
+- [docs/architecture.md](docs/architecture.md): the call flow (Twilio number, Media Streams, Deepgram, Claude every 10 to 15 s, coach mode that only the user hears), gotchas and the demo path.
+- [docs/aws-architecture.md](docs/aws-architecture.md): the production design on AWS eu-central-1 (Fargate call bridge, Bedrock for Claude, DynamoDB, S3 with 30-day retention, Cognito) with GDPR and recording-law notes. The MVP does not run on it; it shows where the product goes once a bank, carrier or care provider asks for data residency.
+- [docs/scoring.md](docs/scoring.md): signals, weights, thresholds, which model does what and why.
+
+## 🗺️ Roadmap
+
+1. **Silent "Hallo" calls:** a common probe in Germany where the caller says nothing and waits. Ellie answers unknown numbers first, so the user never speaks until the caller does; silence after the greeting ends the call and logs the number.
+2. **Shared blocklist** built from every Ellie user's reports.
+3. **Synthetic-voice check** as one more scoring input.
+4. **Bank partnership:** a cooling-off delay on large transfers within an hour of a flagged call.
+5. **Teach after every call:** Ellie explains the trick in two sentences, so the user recognises it next time.
+6. **Family code word**, set during onboarding, so a real grandchild can prove who they are.
+
+## 🎬 Demo script and decisions
+
+- Demo script and beats: [docs/demo-script.md](docs/demo-script.md)
+- Decisions log and open items: [docs/decisions.md](docs/decisions.md)
+- How the day went, for context: [notes/session-context.md](notes/session-context.md)
 
 ## 🗂️ Repo layout
 
 ```
 app/         web app: Ask Ellie, call screen, live call
-backend/     call flow, transcripts, enrichment, scoring, alerts, reports
+backend/     Node backend (call flow, scoring, alerts, reports), Python scorer, n8n endpoint
+tests/       offline scorer tests
 prompts/     Claude prompts
 data/        sample scam transcripts (fake data)
 docs/        scoring, architecture, demo script, decisions, tasks, reporting
 notes/       team notes and raw transcripts of our planning
 demo/        demo video
-slides/      slide images and PDF for the finals
+slides/      pitch deck (PDF)
 ```
 
 ## 🔒 Privacy and safety
@@ -159,7 +204,7 @@ slides/      slide images and PDF for the finals
 - [Anthropic Claude](https://www.anthropic.com): Haiku for live scoring, Sonnet for post-call reports, through the `anthropic` Python SDK
 - [ElevenLabs](https://elevenlabs.io): voices for Ellie, Hilde and the caller in the simulated call
 - [Twilio](https://www.twilio.com) and [Deepgram](https://deepgram.com): built into the production backend, not used in today's demo
-- [Figtree](https://fonts.google.com/specimen/Figtree) and [Bricolage Grotesque](https://fonts.google.com/specimen/Bricolage+Grotesque) from Google Fonts
+- [Bricolage Grotesque](https://fonts.google.com/specimen/Bricolage+Grotesque) and [Atkinson Hyperlegible](https://fonts.google.com/specimen/Atkinson+Hyperlegible) from Google Fonts; brand kit in `brand/`
 - Claude Code and Claude.ai helped write code and docs; the team made every product decision
 - Figures: GASA & Feedzai, Global State of Scams 2024; GASA & Worldline, State of Scams in Germany 2026; BKA Polizeiliche Kriminalstatistik 2025; LKA Hessen; Polizei NRW (links in [The problem](#-the-problem))
 
