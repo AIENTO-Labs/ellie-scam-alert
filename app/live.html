@@ -28,7 +28,10 @@ h1{font:700 clamp(26px,3.5vw,36px)/1.15 var(--ellie-font-display);margin:4px 0 8
 .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
 .primary{background:var(--navy);color:var(--on-navy);border:0;border-radius:var(--ellie-radius);padding:14px 22px;font:700 18px var(--ellie-font-body);cursor:pointer;min-height:var(--ellie-tap)}
 .ghost{border:1px solid var(--navy);color:var(--navy);background:transparent;border-radius:var(--ellie-radius);padding:12px 18px;font:700 16px var(--ellie-font-body);cursor:pointer;min-height:var(--ellie-tap)}
-button:focus-visible,textarea:focus{outline:3px solid var(--brass);outline-offset:2px}
+button:focus-visible,textarea:focus,select:focus-visible{outline:3px solid var(--brass);outline-offset:2px}
+.controls.sample{padding-top:10px;border-top:1px solid var(--line)}
+.controls.sample label{font:700 14px var(--ellie-font-body);color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.controls select{flex:1 1 220px;min-width:0;border:1px solid var(--line);border-radius:var(--ellie-radius);padding:10px 12px;font:inherit;font-size:16px;color:var(--ink);background:var(--bg);min-height:var(--ellie-tap)}
 .transcript{min-height:260px;max-height:420px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:4px}
 .line{max-width:85%;padding:10px 14px;border-radius:14px;background:#ECE6D8;color:#0E2A3B;line-height:1.45}
 .line.interim{opacity:.6}
@@ -61,7 +64,7 @@ ul.tactics li.on{color:var(--ink);font-weight:700}
     <div class="pill" id="status">Line protected</div>
   </header>
   <h1>Live call protection</h1>
-  <p class="lead">The microphone is the phone line. Put a phone on speaker next to the laptop, let someone play the caller, or play the sample call. Ellie transcribes, scores every line as it goes, and speaks up at 80.</p>
+  <p class="lead">The microphone is the phone line. Put a phone on speaker next to the laptop, let someone play the caller, or play one of the sample calls. Ellie transcribes, scores every line as it goes, names the scam, and speaks up at 80.</p>
 
   <div class="grid">
     <section class="card">
@@ -69,8 +72,17 @@ ul.tactics li.on{color:var(--ink);font-weight:700}
         <button class="primary" id="start">Answer the call</button>
         <button class="ghost" id="stop" disabled>Hang up</button>
         <button class="ghost" id="reset">New call</button>
-        <button class="ghost" id="sample">Play a sample scam call</button>
         <span class="pill" id="timer">00:00</span>
+      </div>
+      <div class="controls sample">
+        <label for="scenario">Sample call</label>
+        <select id="scenario" aria-label="Choose a sample scam call">
+          <option value="fake_police">Fake police, gift cards (recorded voices)</option>
+          <option value="grandchild">Grandchild trick, cash after an accident</option>
+          <option value="bank_fraud">Fake bank, TAN code</option>
+          <option value="tech_support">Fake tech support, remote access</option>
+        </select>
+        <button class="ghost" id="sample">Play it</button>
       </div>
       <div class="transcript" id="transcript" aria-live="polite"></div>
       <div class="fallback" id="fallback">
@@ -106,24 +118,57 @@ const TACTICS = [
 ];
 const ELDER = "Hilde", FAMILY = "Anna";
 const DEFAULT_WARNING = `${ELDER}, this is Ellie. This sounds like a scam. Real police and banks never ask for gift cards or codes. You can hang up now.`;
-let WARNING = DEFAULT_WARNING, SCENARIO = "";
-// Claude endpoint for the static site: set ELLIE_API here, or open the page with ?api=https://.../webhook/ellie-score (see backend/n8n/).
-const ELLIE_API = new URLSearchParams(location.search).get("api") || "";
+// What Ellie says at 80 when Claude has not named the scam yet (Claude's own warning wins when it arrives).
+const WARNINGS = {
+  fake_police: `${ELDER}, this is Ellie. This sounds like a scam. The real police never ask for gift cards, codes or money. You can hang up now.`,
+  bank_fraud: `${ELDER}, this is Ellie. This sounds like a scam. Your bank never asks for a TAN or PIN on the phone. Hang up and call the number on your card.`,
+  grandchild: `${ELDER}, this is Ellie. This sounds like a scam. Hang up and call your grandson on his usual number before you do anything.`,
+  tech_support: `${ELDER}, this is Ellie. This sounds like a scam. Microsoft does not call people at home. Do not install anything. You can hang up now.`,
+  tax_office: `${ELDER}, this is Ellie. This sounds like a scam. The tax office writes letters, it does not demand money by phone. You can hang up now.`,
+  parcel: `${ELDER}, this is Ellie. This sounds like a scam. A real delivery never needs your card details by phone. You can hang up now.`,
+  investment: `${ELDER}, this is Ellie. This sounds like a scam. Nobody can promise guaranteed returns. Do not transfer anything. You can hang up now.`,
+};
+const SMS = {
+  fake_police: "A caller claiming to be the police asked for gift cards.",
+  bank_fraud: "A caller claiming to be her bank asked for a TAN code.",
+  grandchild: "Someone pretending to be her grandson asked for cash after an “accident”.",
+  tech_support: "A caller claiming to be Microsoft asked her to install a remote access app.",
+  tax_office: "A caller claiming to be the tax office demanded a payment.",
+  parcel: "A caller about a “parcel” asked for her card details.",
+  investment: "A caller pushed an investment with guaranteed returns.",
+};
+let WARNING = "", SCENARIO = "", claudeNamed = false;
+// Claude endpoint for the static site. Default: the Vercel deployment of this repo (api/check.py). Override with ?api=https://...
+const CLAUDE_API = "";
+const ELLIE_API = new URLSearchParams(location.search).get("api") || CLAUDE_API;
 const SCENARIOS = {fake_police:"Fake police call",bank_fraud:"Fake bank call",grandchild:"Grandchild trick",tech_support:"Fake tech support",tax_office:"Fake tax office",parcel:"Parcel scam",investment:"Investment scam",other:"Scam call"};
-let lines = [], best = 0, acted = false, rec = null, t0 = 0, tick = null, pending = null;
+let lines = [], best = 0, acted = false, rec = null, t0 = 0, tick = null, pending = null, gen = 0;
 
+// The rules layer's guess at the scenario, so the demo names the scam even with no Claude endpoint. Order matters.
+function guessScenario(t){
+  t = t.toLowerCase();
+  if (/grandson|granddaughter|grandma|\boma\b|it's me|it’s me|accident/.test(t)) return "grandchild";
+  if (/microsoft|computer|virus|anydesk|teamviewer|hacker/.test(t)) return "tech_support";
+  if (/police|polizei|detective|officer|arrest/.test(t)) return "fake_police";
+  if (/\bbank\b|sparkasse|\btan\b|online banking|account/.test(t)) return "bank_fraud";
+  if (/\btax\b|finanzamt|customs|\bzoll\b/.test(t)) return "tax_office";
+  if (/parcel|package|\bdhl\b|delivery/.test(t)) return "parcel";
+  if (/invest|bitcoin|crypto|returns/.test(t)) return "investment";
+  return "";
+}
 function rules(text){
   const t = text.toLowerCase(); const hits = []; let w = 0;
   for (const [id,label,wt,pats] of TACTICS){ const p = pats.find(x => t.includes(x)); if (p){ w += wt; hits.push({id,label,evidence:p}); } }
   const ids = new Set(hits.map(h=>h.id));
   if ((ids.has("payment")||ids.has("credentials")||ids.has("remote")) && (ids.has("auth")||ids.has("secrecy"))) w = Math.max(w,.8);
-  return { risk: Math.round(Math.min(1,w)*100), hits, reason: hits.length ? "Flagged: " + hits.map(h=>h.label.toLowerCase()).join(", ") + "." : "Nothing typical of a scam yet.", engine: "rules" };
+  if (!claudeNamed) SCENARIO = guessScenario(text);
+  return { risk: Math.round(Math.min(1,w)*100), hits, reason: hits.length ? "Flagged: " + hits.map(h=>h.label.toLowerCase()).join(", ") + "." : "Nothing typical of a scam yet.", engine: "rules" + (SCENARIO ? " (" + SCENARIOS[SCENARIO].toLowerCase() + ")" : "") };
 }
 async function backend(text){
   // 0. A configured Claude endpoint (the n8n webhook from backend/n8n/, works from the static site)
   if (ELLIE_API) try {
     const r = await fetch(ELLIE_API, {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text,channel:"call"})});
-    if (r.ok){ const v = await r.json(); if (v.warning) WARNING = v.warning; if (v.scenario) SCENARIO = v.scenario;
+    if (r.ok){ const v = await r.json(); if (v.warning) WARNING = v.warning; if (v.scenario && v.scenario !== "other"){ SCENARIO = v.scenario; claudeNamed = true; }
       return { risk: v.score, hits: (v.tactics||[]).map(t=>({label:(TACTICS.find(x=>x[0]===({authority_impersonation:"auth",payment_request:"payment",credential_request:"credentials",remote_access:"remote",emotional_manipulation:"emotion"}[t.id]||t.id))||[,t.id])[1],evidence:t.evidence})), reason: v.reason, engine: "Claude (" + (SCENARIOS[v.scenario]||"scam") + ")" }; }
   } catch(e) {}
   // 1. Ekaterina's Node backend (npm start in backend/, port 8080)
@@ -134,7 +179,8 @@ async function backend(text){
   // 2. The Python MVP server (python backend/server.py, port 8000)
   try {
     const r = await fetch("/api/check", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text})});
-    if (r.ok){ const v = await r.json(); if (v.warning) WARNING = v.warning; return { risk: v.score, hits: (v.tactics||[]).map(t=>({label:t.name,evidence:t.evidence})), reason: v.reason, engine: "Claude" }; }
+    if (r.ok){ const v = await r.json(); if (v.warning) WARNING = v.warning; if (v.scenario && v.scenario !== "other"){ SCENARIO = v.scenario; claudeNamed = true; }
+      return { risk: v.score, hits: (v.tactics||[]).map(t=>({label:t.name,evidence:t.evidence})), reason: v.reason, engine: "Claude (" + (SCENARIOS[v.scenario]||"scam") + ")" }; }
   } catch(e) {}
   return null;
 }
@@ -155,16 +201,31 @@ function renderScore(res){
   document.getElementById("engine").textContent = "Scored by " + res.engine;
   if (best >= 80 && !acted) act();
 }
+let warningDone = null;
 function act(){
   acted = true;
+  const said = WARNING || WARNINGS[SCENARIO] || DEFAULT_WARNING;
   document.getElementById("status").textContent = SCENARIOS[SCENARIO] || "Scam detected"; document.getElementById("status").className = "pill scam";
   document.getElementById("banner").classList.add("show");
-  addLine(WARNING, "ellie");
-  const sms = `Possible scam call to Mum right now. The caller claimed authority and asked for money or codes. Ellie warned her. Call her when you can.`;
+  addLine(said, "ellie");
+  const sms = `Possible scam call to Mum right now. ${SMS[SCENARIO] || "The caller claimed authority and asked for money or codes."} Ellie warned her. Call her when you can.`;
   document.getElementById("smsText").textContent = sms; document.getElementById("sms").classList.add("show");
-  if (window.speechSynthesis){ rec && rec.stop(); if (sampleAudio) { try { sampleAudio.volume = 0.25; } catch(e){} } const u = new SpeechSynthesisUtterance(WARNING); u.lang = "en-GB"; u.rate = .95;
-    u.onend = () => { if (rec && !stopped) try { rec.start(); } catch(e){} }; speechSynthesis.speak(u); }
+  if (window.speechSynthesis){ rec && rec.stop(); if (sampleAudio) { try { sampleAudio.volume = 0.25; } catch(e){} }
+    warningDone = new Promise(res => { const u = utter(said, "ellie"); u.onend = u.onerror = () => { res(); if (rec && !stopped) try { rec.start(); } catch(e){} }; setTimeout(res, 12000); speechSynthesis.speak(u); }); }
 }
+// Voices for the sample calls that have no recording: the caller, Hilde and Ellie get different voices where the browser has them.
+let VOICES = [];
+function loadVoices(){ if (window.speechSynthesis) VOICES = speechSynthesis.getVoices() || []; }
+loadVoices(); if (window.speechSynthesis) speechSynthesis.onvoiceschanged = loadVoices;
+function pick(re, lang){ return VOICES.find(v => re.test(v.name) && v.lang.replace("_","-").startsWith(lang)) || VOICES.find(v => v.lang.replace("_","-").startsWith(lang)) || null; }
+function utter(text, who){
+  const u = new SpeechSynthesisUtterance(text);
+  if (who === "caller"){ u.lang = "en-US"; u.pitch = .8; u.rate = 1.02; const v = pick(/male|david|guy|google us/i, "en-US"); if (v) u.voice = v; }
+  else if (who === "elder"){ u.lang = "en-GB"; u.pitch = 1.2; u.rate = .9; const v = pick(/female|hazel|susan|google uk english female/i, "en-GB"); if (v) u.voice = v; }
+  else { u.lang = "en-GB"; u.pitch = 1; u.rate = .95; const v = pick(/female|google uk english female|hazel/i, "en-GB"); if (v) u.voice = v; }
+  return u;
+}
+function speak(text, who){ return new Promise(res => { if (!window.speechSynthesis) return setTimeout(res, 1600); const u = utter(text, who); u.onend = u.onerror = () => res(); setTimeout(res, 15000); speechSynthesis.speak(u); }); }
 function addLine(text, who, interim){
   const box = document.getElementById("transcript");
   let el = interim ? document.getElementById("interim") : null;
@@ -175,38 +236,75 @@ function addLine(text, who, interim){
 async function score(){
   const text = lines.join("\n"); if (!text.trim()) return;
   const quick = rules(text); renderScore(quick);
-  if (pending) return; pending = backend(text).then(v => { pending = null; if (v) renderScore(v); });
+  if (pending) return; const g = gen;
+  pending = backend(text).then(v => { if (g !== gen) return; pending = null; if (v) renderScore(v); });
 }
 function heard(text){
   const el = document.getElementById("interim"); if (el) el.remove();
   lines.push(text); addLine(text); score();
 }
-const SAMPLE = [
-  ["c1","Good afternoon. Is this Mrs. M\u00fcller?"],
-  ["r1","Yes, speaking. Who is this?"],
-  ["c2","This is Detective Weber, Berlin police, fraud department."],
-  ["r2","Police? Is something wrong?"],
-  ["c3","We arrested a gang last night. They had your name and your bank details. Your savings are at risk."],
-  ["r3","Oh my goodness. What should I do?"],
-  ["c4","We must act today, before the bank closes. And please, don\u2019t tell anyone, not even your family. Bank staff may be involved."],
-  ["r4","Not even my daughter?"],
-  ["c5","No one. Go to the shop now and buy \u20ac2,000 in Google Play cards. Then read me the codes."],
-  ["c6","Mrs. M\u00fcller? Are you still there?"],
-  ["r5","I\u2019m not buying anything. Goodbye."],
-];
+// Sample calls. Each line: [who, text, recordingId?]. "c" = caller (scored), "r" = Hilde (shown, not scored).
+// The fake police call uses the ElevenLabs recordings from the call demo; the others are voiced by the browser.
+// Every script reaches 80 on the rules layer alone, so the demo works with no API at all; Claude names the scam and writes the warning when the endpoint is up.
+const SAMPLES = {
+  fake_police: [
+    ["c","Good afternoon. Is this Mrs. M\u00fcller?","c1"],
+    ["r","Yes, speaking. Who is this?","r1"],
+    ["c","This is Detective Weber, Berlin police, fraud department.","c2"],
+    ["r","Police? Is something wrong?","r2"],
+    ["c","We arrested a gang last night. They had your name and your bank details. Your savings are at risk.","c3"],
+    ["r","Oh my goodness. What should I do?","r3"],
+    ["c","We must act today, before the bank closes. And please, don\u2019t tell anyone, not even your family. Bank staff may be involved.","c4"],
+    ["r","Not even my daughter?","r4"],
+    ["c","No one. Go to the shop now and buy \u20ac2,000 in Google Play cards. Then read me the codes.","c5"],
+    ["c","Mrs. M\u00fcller? Are you still there?","c6"],
+    ["r","I\u2019m not buying anything. Goodbye.","r5","end"],
+  ],
+  grandchild: [
+    ["c","Oma? It\u2019s me, your grandson. Can you hear me? I\u2019m so sorry to call like this."],
+    ["r","Tobias? You sound different."],
+    ["c","I have a cold. Oma, I had a car accident. A woman is in the hospital, and the police say I have to pay a deposit today or they keep me here."],
+    ["r","Oh no. Are you hurt?"],
+    ["c","I\u2019m okay. But please don\u2019t tell Mum, she would be so upset. The lawyer\u2019s assistant can come to your house in an hour and collect the cash. Do you have fifteen thousand euros at home, or jewellery?"],
+    ["c","Oma, please. I need you to say yes now."],
+    ["r","I\u2019m going to call your mother first.",null,"end"],
+  ],
+  bank_fraud: [
+    ["c","Good morning, Mrs. M\u00fcller. This is Mr. Schneider from the Sparkasse security department."],
+    ["r","Good morning. Is there a problem with my account?"],
+    ["c","We have noticed suspicious activity on your account. Someone abroad is trying to take four thousand eight hundred euros right now."],
+    ["r","Oh dear, that is my savings."],
+    ["c","Don\u2019t worry, we can block it, but we must do it immediately. Please open your online banking and read me the TAN code that your phone shows."],
+    ["c","Mrs. M\u00fcller, the code, please. We only have a minute."],
+    ["r","I will call my bank myself. Goodbye.",null,"end"],
+  ],
+  tech_support: [
+    ["c","Hello, I am calling from Microsoft technical support. Your computer is sending us error messages."],
+    ["r","My computer? It seems fine."],
+    ["c","It is infected with a virus. Hackers can see everything, and your bank account is at risk. We need to fix it today."],
+    ["r","What do I need to do?"],
+    ["c","Go to your computer and install AnyDesk so I can take control and remove the virus. Then we check your online banking together."],
+    ["c","Are you at the computer? Don\u2019t hang up, stay on the line."],
+    ["r","I am hanging up and calling my son.",null,"end"],
+  ],
+};
 let samplePlaying = false, sampleAudio = null;
 function playClip(id){ return new Promise(res => { sampleAudio = new Audio("call-demo/audio/" + id + ".mp3"); sampleAudio.onended = res; sampleAudio.onerror = () => setTimeout(res, 1800); sampleAudio.play().catch(() => setTimeout(res, 1800)); }); }
+const wait = ms => new Promise(r => setTimeout(r, ms));
 async function playSample(){
   if (samplePlaying) return; reset(); samplePlaying = true;
+  const script = SAMPLES[document.getElementById("scenario").value] || SAMPLES.fake_police;
   start(true);
-  for (const [id, text] of SAMPLE){
+  if (window.speechSynthesis) await wait(2200); // let the announcement finish
+  for (const [who, text, clip, end] of script){
     if (!samplePlaying) break;
-    if (id === "r5" && !acted) continue;
-    await playClip(id);
-    if (id.startsWith("c")) heard(text); else addLine(text, "elder");
-    if (id === "c5"){ let n = 0; while (!acted && n++ < 40) await new Promise(r => setTimeout(r, 100)); }
-    if (acted && (id === "c5")) await new Promise(r => setTimeout(r, 6500));
-    await new Promise(r => setTimeout(r, 500));
+    if (end && !acted) continue;              // Hilde only gets the last word once Ellie has warned her
+    if (clip) { await playClip(clip); if (who === "c") heard(text); else addLine(text, "elder"); }
+    else if (who === "c") { heard(text); await speak(text, "caller"); }
+    else { addLine(text, "elder"); await speak(text, "elder"); }
+    if (who === "c" && pending) await Promise.race([pending, wait(3000)]);   // give Claude a moment to answer
+    if (acted && warningDone){ await warningDone; warningDone = null; await wait(600); }
+    await wait(400);
   }
   samplePlaying = false; stop();
 }
@@ -217,7 +315,7 @@ function start(noMic){
   document.getElementById("status").textContent = "Live"; document.getElementById("status").className = "pill live";
   document.getElementById("start").disabled = true; document.getElementById("stop").disabled = false;
   addLine("This call is protected by Ellie.", "ellie");
-  if (window.speechSynthesis){ const u = new SpeechSynthesisUtterance("This call is protected by Ellie."); u.lang="en-GB"; speechSynthesis.speak(u); }
+  if (window.speechSynthesis){ speechSynthesis.cancel(); speechSynthesis.speak(utter("This call is protected by Ellie.", "ellie")); }
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (noMic) return;
   if (!SR){ document.getElementById("typedLabel").innerHTML = "<b>No speech recognition in this browser.</b> Type what the caller says, one line at a time, and press Enter."; return; }
@@ -228,13 +326,16 @@ function start(noMic){
   try { rec.start(); } catch(e){}
 }
 function stop(){
+  const wasPlaying = samplePlaying;
   stopped = true; samplePlaying = false; if (sampleAudio) { try { sampleAudio.pause(); } catch(e){} }
+  if (wasPlaying && window.speechSynthesis && !acted) speechSynthesis.cancel();   // "Hang up" mid-sample cuts the caller off; Ellie's warning is left to finish
   rec && rec.stop(); clearInterval(tick);
   document.getElementById("status").textContent = acted ? "Call ended, scam stopped" : "Call ended";
   document.getElementById("start").disabled = false; document.getElementById("stop").disabled = true;
 }
 function reset(){
-  stop(); lines = []; best = 0; acted = false; WARNING = DEFAULT_WARNING; SCENARIO = "";
+  stop(); lines = []; best = 0; acted = false; WARNING = ""; SCENARIO = ""; claudeNamed = false; warningDone = null; pending = null; gen++;
+  if (window.speechSynthesis) speechSynthesis.cancel();
   document.getElementById("transcript").innerHTML = ""; document.getElementById("banner").classList.remove("show"); document.getElementById("sms").classList.remove("show");
   document.getElementById("status").textContent = "Line protected"; document.getElementById("status").className = "pill"; document.getElementById("timer").textContent = "00:00";
   renderScore({risk:0,hits:[],reason:"Listening for authority claims, urgency, secrecy, threats, requests for money or codes.",engine:"nothing yet"});
