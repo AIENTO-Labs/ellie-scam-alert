@@ -2,7 +2,11 @@
 
 **One line:** Ellie (from "elderly ally") is an AI companion that listens to calls with older adults and other people vulnerable to scams, scores the scam risk live, cuts in with a warning before money moves, alerts the family and prepares a report for the authorities.
 
-> Repo name `scamalert` is the working name. Teammates: start with [TEAM.md](TEAM.md).
+**Ellie answers first. Warns only you. Tells your family.**
+
+- Try it: [Ask Ellie](https://claude.ai/artifact/FhAiZYWzYGdkVUK1qzXKMR) (paste a message, Claude answers)
+- Watch it: [2-minute demo video](https://drive.google.com/file/d/11O24gQOdhJmWJ1RnxpbtBoRRiZifuRes/view?usp=sharing)
+- Run it: see "How to run it" below
 
 ## Audience, problem, demo (one sentence each)
 
@@ -12,12 +16,12 @@
 
 ## The problem
 
-Scam calls aimed at older people use urgency, authority and secrecy: a fake bank fraud department, police or tax office, or a relative "arrested" and needing money. Annual losses worldwide were put at 160 billion in team discussion. [NEEDS CONFIRMATION: figure and source]
+Scam calls aimed at older people use urgency, authority and secrecy: a fake bank fraud department, police or tax office, or a relative "arrested" and needing money. Consumers in 42 countries lost roughly $442 billion to scams in the past year, and 57% of adults surveyed were targeted ([GASA Global State of Scams 2025](https://www.feedzai.com/blog/gasa-global-state-of-scams-report/)). In Germany the fake-police call (falsche Polizeibeamte), the grandchild trick (Enkeltrick) and the shock call (Schockanruf) are the patterns police warn about most, and they are aimed at exactly the people with the least time to think on the phone.
 
 ## What it does
 
-- **Prevents:** announces at the start of the call that it is protected and may be recorded, which is the legal notice in Germany and also deters scammers. [NEEDS CONFIRMATION on §201 StGB]
-- **Detects:** transcribes the call live, enriches it (unknown number, origin, first contact) and scores scam probability from 0 to 1.
+- **Prevents:** announces at the start of the call that it is protected and may be recorded, which serves as the recording notice in Germany and also deters scammers (exact legal wording to be confirmed with counsel).
+- **Detects:** transcribes the call live, enriches it (unknown number, origin, first contact) and scores scam risk from 0 to 100.
 - **Intercepts:** above the top threshold it lowers the caller's audio, cuts in with a spoken warning, starts recording and alerts a family member.
 - **Advises:** tells the user what to do next (hang up, call the bank on the number on the card) and answers "was that real?" after the call.
 - **Reports:** texts the family with what happened and prepares a report for the police, the Bundesnetzagentur or the bank. See [docs/reporting.md](docs/reporting.md).
@@ -86,4 +90,9 @@ slides/      slide images and PDF for the finals
 
 ## Credits
 
-To be added: libraries, APIs and assets used.
+- [Anthropic Claude](https://www.anthropic.com) (Haiku for live scoring, Sonnet for post-call reports) through the `anthropic` Python SDK
+- [ElevenLabs](https://elevenlabs.io) voices for Ellie, Hilde and the caller in the simulated call
+- [Twilio](https://www.twilio.com) and [Deepgram](https://deepgram.com) in the production design (not used in today's build)
+- [Figtree](https://fonts.google.com/specimen/Figtree) and [Bricolage Grotesque](https://fonts.google.com/specimen/Bricolage+Grotesque) from Google Fonts
+- Claude Code and Claude.ai helped write code and docs; the team made every product decision
+- Figures: [GASA Global State of Scams 2025](https://www.feedzai.com/blog/gasa-global-state-of-scams-report/)
