@@ -94,7 +94,7 @@ All prompts live in [`prompts/`](prompts/).
 | 🎙️ | [Live call](https://aiento-labs.github.io/ellie-scam-alert/app/live.html) | Your microphone is the phone line: speak as the caller, watch the score, hear Ellie step in at 80 |
 | 📊 | [Pitch deck](slides/ellie-pitch-deck.pdf) | 11 slides: problem, Ellie, demo, how Claude is used |
 
-The two GitHub Pages links run on built-in rules (a static site holds no API key). Add `?api=https://<your-n8n>/webhook/ellie-score` to score through Claude, see [backend/n8n/](backend/n8n/), or run it locally below.
+The two GitHub Pages links run on built-in rules (a static site holds no API key). To put Claude behind the public pages, import this repo in Vercel and set `ANTHROPIC_API_KEY`: `vercel.json` serves `app/` at the root and `api/check.py` as the scoring endpoint, so `https://<project>.vercel.app/live.html` scores through Claude. The Pages copies can use it too with `?api=https://<project>.vercel.app/api/check`. An n8n alternative is in [backend/n8n/](backend/n8n/). Or run it locally below.
 
 ## ✅ What is real and what is simulated
 
