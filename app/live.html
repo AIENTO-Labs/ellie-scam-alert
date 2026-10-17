@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ellie live</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="brand/ellie-tokens.css">
+<link rel="icon" href="favicon.ico" sizes="any">
+<style>
+/* Live demo: the laptop microphone is the phone line. Speech to text in the browser, scoring by the Ellie backend (or rules), Ellie speaks at 80. */
+:root{--bg:var(--ellie-parchment);--surface:var(--ellie-surface);--ink:var(--ellie-ink);--muted:var(--ellie-ink-soft);--line:var(--ellie-line);--navy:var(--ellie-navy);--on-navy:#FFFDF8;--brass:var(--ellie-brass);--low:var(--ellie-safe);--watch:var(--ellie-careful);--high:#A4501A;--scam:var(--ellie-scam)}
+@media (prefers-color-scheme:dark){:root{--navy:var(--ellie-brass);--on-navy:#0E2A3B;--high:#F59A5E}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.6 var(--ellie-font-body)}
+.wrap{max-width:1100px;margin:0 auto;padding:24px 16px 48px}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-bottom:16px}
+.brand{display:flex;align-items:center;gap:12px;font:800 30px/1 var(--ellie-font-display);letter-spacing:-.02em}
+.brand img{width:44px;height:44px}
+.pill{font:700 14px var(--ellie-font-body);padding:8px 14px;border-radius:999px;background:var(--surface);border:1px solid var(--line);color:var(--muted)}
+.pill.live{color:var(--low);border-color:var(--low)}
+.pill.scam{color:var(--scam);border-color:var(--scam)}
+h1{font:700 clamp(26px,3.5vw,36px)/1.15 var(--ellie-font-display);margin:4px 0 8px}
+.lead{color:var(--muted);max-width:62ch;margin:0 0 20px}
+.grid{display:grid;grid-template-columns:1.2fr .8fr;gap:20px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--ellie-radius-card);padding:20px;min-width:0}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.primary{background:var(--navy);color:var(--on-navy);border:0;border-radius:var(--ellie-radius);padding:14px 22px;font:700 18px var(--ellie-font-body);cursor:pointer;min-height:var(--ellie-tap)}
+.ghost{border:1px solid var(--navy);color:var(--navy);background:transparent;border-radius:var(--ellie-radius);padding:12px 18px;font:700 16px var(--ellie-font-body);cursor:pointer;min-height:var(--ellie-tap)}
+button:focus-visible,textarea:focus{outline:3px solid var(--brass);outline-offset:2px}
+.transcript{min-height:260px;max-height:420px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:4px}
+.line{max-width:85%;padding:10px 14px;border-radius:14px;background:#ECE6D8;color:#0E2A3B;line-height:1.45}
+.line.interim{opacity:.6}
+.line.ellie{align-self:flex-end;background:var(--navy);color:var(--on-navy);font-weight:700}
+.line mark{background:var(--ellie-careful-wash);color:inherit;border-radius:4px;padding:0 2px}
+.fallback{margin-top:12px}
+.fallback textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:var(--ellie-radius);padding:12px;font:inherit;color:var(--ink);background:var(--bg)}
+.score{font:800 72px/1 var(--ellie-font-display);font-variant-numeric:tabular-nums}
+.score small{font:400 20px var(--ellie-font-body);color:var(--muted)}
+.band{font:700 22px var(--ellie-font-body);margin:4px 0 10px}
+.bar{display:grid;grid-template-columns:30fr 30fr 20fr 20fr;gap:4px;margin:6px 0 14px}
+.bar span{height:10px;border-radius:999px;opacity:.25}.bar span.on{opacity:1}
+ul.tactics{list-style:none;padding:0;margin:0}
+ul.tactics li{padding:8px 0;border-top:1px solid var(--line);color:var(--muted)}
+ul.tactics li.on{color:var(--ink);font-weight:700}
+.reason{margin:12px 0 0;color:var(--muted);font-size:16px}
+.banner{display:none;margin-top:16px;padding:16px;border-radius:var(--ellie-radius);background:var(--ellie-scam-wash);color:var(--scam);font-weight:700}
+.banner.show{display:block}
+.sms{display:none;margin-top:12px;padding:14px;border-radius:var(--ellie-radius);background:var(--surface);border:1px solid var(--line);font-size:16px}
+.sms.show{display:block}
+.sms b{display:block;color:var(--muted);font-size:13px;letter-spacing:.04em;text-transform:uppercase}
+.engine{font-size:13px;color:var(--muted);margin-top:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><img src="brand/logo.png" alt=""><span><span aria-hidden="true">Ell<span class="ellie-i">ı</span>e</span></span></div>
+    <div class="pill" id="status">Line protected</div>
+  </header>
+  <h1>Live call protection</h1>
+  <p class="lead">The microphone is the phone line. Put a phone on speaker next to the laptop, or let someone play the caller. Ellie transcribes, scores the call as it goes, and speaks up at 80.</p>
+
+  <div class="grid">
+    <section class="card">
+      <div class="controls">
+        <button class="primary" id="start">Answer the call</button>
+        <button class="ghost" id="stop" disabled>Hang up</button>
+        <button class="ghost" id="reset">New call</button>
+        <span class="pill" id="timer">00:00</span>
+      </div>
+      <div class="transcript" id="transcript" aria-live="polite"></div>
+      <div class="fallback" id="fallback" hidden>
+        <label for="typed"><b>No speech recognition in this browser.</b> Type what the caller says, one line at a time, and press Enter.</label>
+        <textarea id="typed" placeholder="This is Detective Weber, Berlin police..."></textarea>
+      </div>
+    </section>
+
+    <section class="card" aria-live="polite">
+      <div class="score" id="score" style="color:var(--low)">0<small>/100</small></div>
+      <div class="band" id="band" style="color:var(--low)">Looks safe</div>
+      <div class="bar" id="bar"><span style="background:var(--low)"></span><span style="background:var(--watch)"></span><span style="background:var(--high)"></span><span style="background:var(--scam)"></span></div>
+      <ul class="tactics" id="tactics"></ul>
+      <p class="reason" id="reason">Listening for authority claims, urgency, secrecy, threats, requests for money or codes.</p>
+      <div class="banner" id="banner">Ellie stepped in: warned the caller's target privately and texted the family.</div>
+      <div class="sms" id="sms"><b>Text to Anna (daughter)</b><span id="smsText"></span></div>
+      <div class="engine" id="engine"></div>
+    </section>
+  </div>
+</div>
+
+<script>
+const TACTICS = [
+  ["auth","Authority impersonation",.25,["police","polizei","officer","detective","bank","sparkasse","finanzamt","tax office","customs","zoll","microsoft"]],
+  ["urgency","Urgency",.15,["today","immediately","right now","quickly","hurry","before the bank closes","no time"]],
+  ["secrecy","Secrecy",.2,["don't tell","do not tell","not even your","keep this between","confidential","tell no one","nobody"]],
+  ["threat","Threat",.15,["arrest","fine","frozen","blocked","prison","jail","at risk","in danger"]],
+  ["payment","Payment request",.3,["gift card","google play","itunes","safe account","transfer","bitcoin","crypto","cash","jewellery","jewelry","valuables"]],
+  ["credentials","Codes or passwords",.3,["tan","pin","password","read me the code","the codes","card number","online banking"]],
+  ["remote","Remote access app",.3,["anydesk","teamviewer","remote access","install"]],
+  ["emotion","Emotional pressure",.15,["accident","hospital","grandson","granddaughter","crying","in trouble"]],
+  ["isolation","Keeps you on the line",.1,["stay on the line","don't hang up","do not hang up","stay with me"]],
+];
+const ELDER = "Hilde", FAMILY = "Anna";
+const WARNING = `${ELDER}, this is Ellie. This sounds like a scam. Real police and banks never ask for gift cards or codes. You can hang up now.`;
+let lines = [], best = 0, acted = false, rec = null, t0 = 0, tick = null, pending = null;
+
+function rules(text){
+  const t = text.toLowerCase(); const hits = []; let w = 0;
+  for (const [id,label,wt,pats] of TACTICS){ const p = pats.find(x => t.includes(x)); if (p){ w += wt; hits.push({id,label,evidence:p}); } }
+  const ids = new Set(hits.map(h=>h.id));
+  if ((ids.has("payment")||ids.has("credentials")||ids.has("remote")) && (ids.has("auth")||ids.has("secrecy"))) w = Math.max(w,.8);
+  return { risk: Math.round(Math.min(1,w)*100), hits, reason: hits.length ? "Flagged: " + hits.map(h=>h.label.toLowerCase()).join(", ") + "." : "Nothing typical of a scam yet.", engine: "rules" };
+}
+async function backend(text){
+  // 1. Ekaterina's Node backend (npm start in backend/, port 8080)
+  try {
+    const r = await fetch("http://localhost:8080/api/score", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text,channel:"call"})});
+    if (r.ok){ const v = await r.json(); return { risk: Math.round((v.risk ?? v.score*100) || 0), hits: (v.reasons||[]).map(l=>({label:l})), reason: v.summary || (v.reasons||[]).join(", "), engine: "Ellie backend (" + (v.engine||"node") + ")" }; }
+  } catch(e) {}
+  // 2. The Python MVP server (python backend/server.py, port 8000)
+  try {
+    const r = await fetch("/api/check", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text})});
+    if (r.ok){ const v = await r.json(); return { risk: v.score, hits: (v.tactics||[]).map(t=>({label:t.name,evidence:t.evidence})), reason: v.reason, engine: "Claude" }; }
+  } catch(e) {}
+  return null;
+}
+function band(s){ return s>=80?["Scam","--scam",3]:s>=60?["Very suspicious","--high",2]:s>=30?["Be careful","--watch",1]:["Looks safe","--low",0]; }
+function renderTactics(hits){
+  const on = new Set(hits.map(h=>(h.label||"").toLowerCase()));
+  document.getElementById("tactics").innerHTML = TACTICS.map(([id,label]) => `<li class="${on.has(label.toLowerCase())?"on":""}">${label}</li>`).join("");
+}
+function renderScore(res){
+  best = Math.max(best, res.risk);
+  const [name,col,idx] = band(best);
+  document.getElementById("score").innerHTML = `${best}<small>/100</small>`;
+  document.getElementById("score").style.color = `var(${col})`;
+  const b = document.getElementById("band"); b.textContent = name; b.style.color = `var(${col})`;
+  [...document.getElementById("bar").children].forEach((s,i)=>s.classList.toggle("on", i<=idx));
+  renderTactics(res.hits);
+  document.getElementById("reason").textContent = res.reason || "";
+  document.getElementById("engine").textContent = "Scored by " + res.engine;
+  if (best >= 80 && !acted) act();
+}
+function act(){
+  acted = true;
+  document.getElementById("status").textContent = "Scam detected"; document.getElementById("status").className = "pill scam";
+  document.getElementById("banner").classList.add("show");
+  addLine(WARNING, "ellie");
+  const sms = `Possible scam call to Mum right now. The caller claimed authority and asked for money or codes. Ellie warned her. Call her when you can.`;
+  document.getElementById("smsText").textContent = sms; document.getElementById("sms").classList.add("show");
+  if (window.speechSynthesis){ rec && rec.stop(); const u = new SpeechSynthesisUtterance(WARNING); u.lang = "en-GB"; u.rate = .95;
+    u.onend = () => { if (rec && !stopped) try { rec.start(); } catch(e){} }; speechSynthesis.speak(u); }
+}
+function addLine(text, who, interim){
+  const box = document.getElementById("transcript");
+  let el = interim ? document.getElementById("interim") : null;
+  if (!el){ el = document.createElement("div"); el.className = "line"; if (interim) el.id = "interim"; box.appendChild(el); }
+  el.className = "line" + (who==="ellie" ? " ellie" : "") + (interim ? " interim" : "");
+  el.textContent = text; box.scrollTop = box.scrollHeight;
+}
+async function score(){
+  const text = lines.join("\n"); if (!text.trim()) return;
+  const quick = rules(text); renderScore(quick);
+  if (pending) return; pending = backend(text).then(v => { pending = null; if (v) renderScore(v); });
+}
+function heard(text){
+  const el = document.getElementById("interim"); if (el) el.remove();
+  lines.push(text); addLine(text); score();
+}
+let stopped = true;
+function start(){
+  stopped = false; t0 = Date.now(); clearInterval(tick);
+  tick = setInterval(()=>{ const s = Math.floor((Date.now()-t0)/1000); document.getElementById("timer").textContent = String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0"); }, 500);
+  document.getElementById("status").textContent = "Live"; document.getElementById("status").className = "pill live";
+  document.getElementById("start").disabled = true; document.getElementById("stop").disabled = false;
+  addLine("This call is protected by Ellie.", "ellie");
+  if (window.speechSynthesis){ const u = new SpeechSynthesisUtterance("This call is protected by Ellie."); u.lang="en-GB"; speechSynthesis.speak(u); }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR){ document.getElementById("fallback").hidden = false; return; }
+  rec = new SR(); rec.lang = "en-US"; rec.continuous = true; rec.interimResults = true;
+  rec.onresult = e => { let interim = ""; for (let i = e.resultIndex; i < e.results.length; i++){ const r = e.results[i]; if (r.isFinal) heard(r[0].transcript.trim()); else interim += r[0].transcript; } if (interim) addLine(interim, "caller", true); };
+  rec.onend = () => { if (!stopped) try { rec.start(); } catch(e){} };
+  rec.onerror = e => { if (e.error === "not-allowed"){ document.getElementById("fallback").hidden = false; stopped = true; } };
+  try { rec.start(); } catch(e){ document.getElementById("fallback").hidden = false; }
+}
+function stop(){
+  stopped = true; rec && rec.stop(); clearInterval(tick);
+  document.getElementById("status").textContent = acted ? "Call ended, scam stopped" : "Call ended";
+  document.getElementById("start").disabled = false; document.getElementById("stop").disabled = true;
+}
+function reset(){
+  stop(); lines = []; best = 0; acted = false;
+  document.getElementById("transcript").innerHTML = ""; document.getElementById("banner").classList.remove("show"); document.getElementById("sms").classList.remove("show");
+  document.getElementById("status").textContent = "Line protected"; document.getElementById("status").className = "pill"; document.getElementById("timer").textContent = "00:00";
+  renderScore({risk:0,hits:[],reason:"Listening for authority claims, urgency, secrecy, threats, requests for money or codes.",engine:"nothing yet"});
+  document.getElementById("engine").textContent = "";
+}
+document.getElementById("start").onclick = start;
+document.getElementById("stop").onclick = stop;
+document.getElementById("reset").onclick = reset;
+document.getElementById("typed").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey){ e.preventDefault(); const v = e.target.value.trim(); if (v){ heard(v); e.target.value = ""; } } });
+renderTactics([]);
+</script>
+</body>
+</html>
