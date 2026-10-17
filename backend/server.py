@@ -52,6 +52,8 @@ class Handler(SimpleHTTPRequestHandler):
                 "score": round(float(c.get("probability", 0)) * 100),
                 "reason": c.get("reason", ""),
                 "advice": c.get("advice", ""),
+                "scenario": c.get("scenario", "other"),
+                "warning": c.get("warning", ""),
                 "tactics": [{"id": t.get("id"), "name": NAMES.get(t.get("id"), t.get("id")),
                              "evidence": t.get("evidence", "")} for t in c.get("tactics", [])],
             }
