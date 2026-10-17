@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ellie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Bricolage+Grotesque:wght@600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F3F6F5;--surface:#FFFFFF;--ink:#12201E;--muted:#5E6E6B;--line:#DDE5E3;--teal:#0E6B60;--teal-soft:#E1F0ED;--low:#2F9E62;--watch:#C98A0E;--high:#E0661F;--scam:#D2372B;--focus:#0E6B60}
+@media (prefers-color-scheme:dark){:root{--bg:#0F1716;--surface:#172221;--ink:#E8F0EE;--muted:#9DB0AC;--line:#2A3836;--teal:#3FB3A2;--teal-soft:#1D3431;--focus:#3FB3A2}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.6 Figtree,system-ui,sans-serif}
+.wrap{max-width:1080px;margin:0 auto;padding:24px 16px 64px}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:24px}
+.brand{display:flex;align-items:center;gap:12px;font:600 28px/1 'Bricolage Grotesque',Figtree,sans-serif;color:var(--teal)}
+.blob{width:40px;height:40px;border-radius:50%;background:var(--teal);box-shadow:inset -6px -6px 0 rgba(0,0,0,.12)}
+.status{font-size:15px;color:var(--muted)}
+h1{font:600 clamp(28px,4vw,40px)/1.15 'Bricolage Grotesque',Figtree,sans-serif;margin:8px 0 8px;max-width:22ch}
+.lead{color:var(--muted);max-width:60ch;margin:0 0 24px}
+.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:24px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px}
+label{display:block;font-weight:600;margin-bottom:8px}
+textarea{width:100%;min-height:170px;border:1px solid var(--line);border-radius:14px;padding:16px;font:inherit;color:var(--ink);background:var(--bg);resize:vertical}
+textarea:focus,button:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.help{font-size:15px;color:var(--muted);margin:8px 0 16px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;font-size:15px;cursor:pointer}
+.chip:hover{border-color:var(--teal)}
+.primary{background:var(--teal);color:#fff;border:0;border-radius:14px;padding:16px 28px;font:600 20px Figtree,sans-serif;cursor:pointer;width:100%}
+.primary:active{transform:translateY(1px)}
+.primary[disabled]{opacity:.6;cursor:wait}
+.err{color:var(--scam);font-size:15px;min-height:1.4em;margin-top:8px}
+.empty{color:var(--muted)}
+.score{display:flex;align-items:baseline;gap:8px;font:600 64px/1 'Bricolage Grotesque',sans-serif}
+.score small{font:500 20px Figtree;color:var(--muted)}
+.band{font-weight:600;font-size:22px;margin:4px 0 12px}
+.bar{display:grid;grid-template-columns:30fr 30fr 20fr 20fr;gap:4px;margin:8px 0 4px;position:relative}
+.bar span{height:10px;border-radius:999px;opacity:.35}
+.bar span.on{opacity:1}
+.verdict{font-size:20px;margin:16px 0 8px}
+.advice{background:var(--teal-soft);border-radius:14px;padding:16px;font-weight:600}
+ul.tactics{list-style:none;padding:0;margin:16px 0 0}
+ul.tactics li{padding:8px 0;border-top:1px solid var(--line);font-size:16px}
+ul.tactics b{display:block}
+ul.tactics q{color:var(--muted)}
+.actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.ghost{border:1px solid var(--teal);color:var(--teal);background:transparent;border-radius:14px;padding:12px 18px;font:600 16px Figtree;cursor:pointer}
+.sent{color:var(--low);font-size:15px;margin-top:8px}
+.engine{font-size:13px;color:var(--muted);margin-top:16px}
+h2{font:600 26px/1.2 'Bricolage Grotesque',Figtree,sans-serif;margin:48px 0 8px}
+.frame{width:100%;aspect-ratio:16/10;border:0;border-radius:14px;background:var(--surface)}
+@media (prefers-reduced-motion:no-preference){.result{animation:in .35s ease-out}@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><div class="blob" aria-hidden="true"></div>Ellie</div>
+    <div class="status" id="engineStatus">Your ally against scams</div>
+  </header>
+
+  <h1>Not sure about a message? Ask Ellie.</h1>
+  <p class="lead">Paste a text, WhatsApp or email you received. Ellie tells you in plain words if it looks like a scam and what to do next.</p>
+
+  <div class="grid">
+    <section class="card" aria-labelledby="askLabel">
+      <label id="askLabel" for="msg">The message you received</label>
+      <div class="chips" role="group" aria-label="Try an example">
+        <button class="chip" data-ex="whatsapp">WhatsApp: new number</button>
+        <button class="chip" data-ex="sms">SMS: parcel</button>
+        <button class="chip" data-ex="bank">Email: bank</button>
+        <button class="chip" data-ex="safe">Normal message</button>
+      </div>
+      <textarea id="msg" placeholder="Paste the message here"></textarea>
+      <p class="help">Ellie only reads what you paste. Nothing is stored.</p>
+      <button class="primary" id="check">Is this a scam?</button>
+      <div class="err" id="err" role="alert"></div>
+    </section>
+
+    <section class="card" aria-live="polite" id="out">
+      <p class="empty">Ellie's answer appears here.</p>
+    </section>
+  </div>
+
+  <h2>During a call, Ellie listens with you</h2>
+  <p class="lead">A simulated scam call: a fake police officer asks Hilde for gift cards. Ellie scores the call live, warns her privately at 80 and texts her daughter. Click the frame to start.</p>
+  <iframe class="frame" src="call-demo/index.html" title="Ellie call protection demo" allow="autoplay; fullscreen"></iframe>
+</div>
+
+<script>
+const EX = {
+  whatsapp: "Hallo Mama, das ist meine neue Nummer, mein Handy ist kaputt. Kannst du mir heute schnell 1.450 Euro überweisen? Ich erkläre dir alles später, bitte sag Papa nichts.",
+  sms: "DHL: Your parcel could not be delivered. Pay the 1,99 EUR customs fee within 24 hours or it will be returned: dhl-zustellung-info.top/pay",
+  bank: "Dear customer, unusual activity was detected on your Sparkasse account. Your online banking will be blocked today. Confirm your identity and enter your TAN here immediately to avoid suspension.",
+  safe: "Hi Mum, dinner on Sunday is at 6 at our place. Anna is bringing the cake. Love you!"
+};
+const RULES = {
+  auth:[.25,["police","polizei","officer","detective","bank","sparkasse","volksbank","finanzamt","tax office","dhl","amazon","paypal","microsoft","customs","zoll"],"Pretends to be an official or company"],
+  urgency:[.15,["today","heute","immediately","sofort","right now","24 hours","schnell","quickly","urgent","dringend"],"Pressure to act fast"],
+  secrecy:[.2,["don't tell","sag niemand","sag papa","sag mama","sag nichts","keep it secret","confidential","nicht weitersagen"],"Asks you to keep it secret"],
+  threat:[.15,["blocked","gesperrt","suspended","suspension","arrest","fine","returned","frozen"],"Threatens a loss"],
+  payment:[.3,["überweis*","transfer","pay","gift card*","google play","itunes","bitcoin","crypto","fee","euro","eur"],"Asks for money"],
+  credentials:[.3,["tan","pin","password","passwort","confirm your identity","login","code"],"Asks for codes or passwords"],
+  newnumber:[.25,["neue nummer","new number","handy ist kaputt","phone is broken","lost my phone"],"Claims a new number"],
+  link:[.2,["http*",".top/",".xyz/","bit.ly","click here","hier klicken"],"Contains a suspicious link"],
+  remote:[.3,["anydesk","teamviewer","remote access","install the app"],"Asks you to install a remote access app"]
+};
+function band(s){return s>=80?["Scam","--scam",3]:s>=60?["Very suspicious","--high",2]:s>=30?["Be careful","--watch",1]:["Looks safe","--low",0]}
+function rules(text){
+  const t=text.toLowerCase(), hits=[];
+  let w=0;
+  for(const [k,[wt,pats,name]] of Object.entries(RULES)){
+    const p=pats.find(x=>{const pre=x.endsWith("*"),w=pre?x.slice(0,-1):x;
+      const re=new RegExp("(?<![a-z\u00e4\u00f6\u00fc\u00df])"+w.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+(pre||/[^a-z]$/.test(w)?"":"(?![a-z\u00e4\u00f6\u00fc\u00df])"),"i");
+      return re.test(t)});
+    if(p){w+=wt;hits.push({id:k,name,evidence:p.replace("*","")})}
+  }
+  const score=Math.round(Math.min(1,w)*100);
+  const reason=hits.length?"It uses "+hits.slice(0,3).map(h=>h.name.toLowerCase()).join(", ")+".":"Nothing typical of a scam found.";
+  const advice=score>=60?"Do not reply, click or pay. Call the person or company on a number you already know.":score>=30?"Check with someone you trust before you do anything.":"No action needed. If anything feels off, ask a family member.";
+  return {score,tactics:hits,reason,advice,engine:"rules"};
+}
+async function claude(text){
+  const r=await fetch("/api/check",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text})});
+  if(!r.ok) throw new Error("server");
+  return r.json();
+}
+function render(res){
+  const [name,col,idx]=band(res.score);
+  const segs=["--low","--watch","--high","--scam"].map((c,i)=>`<span style="background:var(${c})" class="${i<=idx?'on':''}"></span>`).join("");
+  const tac=res.tactics.length?`<ul class="tactics">${res.tactics.map(t=>`<li><b>${t.name||t.id}</b>${t.evidence?`<q>${esc(t.evidence)}</q>`:""}</li>`).join("")}</ul>`:"";
+  const alertBtn=res.score>=60?`<div class="actions"><button class="ghost" id="alertBtn">Tell my family</button></div><div class="sent" id="sent"></div>`:"";
+  document.getElementById("out").innerHTML=`<div class="result">
+    <div class="score" style="color:var(${col})">${res.score}<small>/100</small></div>
+    <div class="band" style="color:var(${col})">${name}</div>
+    <div class="bar" aria-hidden="true">${segs}</div>
+    <p class="verdict">${esc(res.reason)}</p>
+    <div class="advice">${esc(res.advice)}</div>${tac}${alertBtn}
+    <div class="engine">${res.engine==="claude"?"Checked by Claude":"Checked offline by Ellie's rules (start the server to use Claude)"}</div></div>`;
+  const b=document.getElementById("alertBtn");
+  if(b) b.onclick=()=>{document.getElementById("sent").textContent="Simulated: Anna got a text that Mum received a possible scam message.";b.disabled=true};
+}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{document.getElementById("msg").value=EX[c.dataset.ex];document.getElementById("err").textContent=""});
+document.getElementById("msg").oninput=()=>document.getElementById("err").textContent="";
+document.getElementById("check").onclick=async()=>{
+  const text=document.getElementById("msg").value.trim(), btn=document.getElementById("check");
+  if(!text){document.getElementById("err").textContent="Paste a message first.";return}
+  btn.disabled=true;btn.textContent="Ellie is reading...";
+  document.getElementById("out").innerHTML='<p class="empty">Ellie is reading the message...</p>';
+  let res;
+  try{res=await claude(text);res.engine="claude"}catch(e){res=rules(text)}
+  render(res);btn.disabled=false;btn.textContent="Is this a scam?";
+};
+</script>
+</body>
+</html>
