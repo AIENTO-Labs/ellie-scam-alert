@@ -1,0 +1,22 @@
+{
+  "name": "ellie-backend",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Ellie: live scam-call scoring, telephony bridge and dashboard API",
+  "engines": { "node": ">=20.12" },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test",
+    "setup-aws": "node scripts/setup-dynamo.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "0.39.0",
+    "@aws-sdk/client-dynamodb": "3.658.1",
+    "@aws-sdk/lib-dynamodb": "3.658.1",
+    "express": "4.21.0",
+    "twilio": "5.3.4",
+    "ws": "8.18.0"
+  }
+}

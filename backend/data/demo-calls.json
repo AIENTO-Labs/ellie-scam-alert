@@ -1,0 +1,36 @@
+{
+  "_note": "Fictional demo calls. Names and numbers are made up.",
+  "scam": {
+    "caller_number": "+49 30 555 0199",
+    "caller_claimed": "Sparkasse security dept. (claimed)",
+    "lines": [
+      ["caller", "Good afternoon Mrs. Becker, this is Thomas Krüger from the Sparkasse security department."],
+      ["elder", "Oh, hello. Is something wrong?"],
+      ["caller", "We've detected suspicious activity on your account. We need to act right now."],
+      ["caller", "Please don't tell anyone about this call, not even your family. The criminals may be listening."],
+      ["elder", "Oh my God. What should I do?"],
+      ["caller", "First, read me the TAN code you just received by SMS."],
+      ["caller", "Then we'll move your savings to a safe account for protection."]
+    ]
+  },
+  "grandson": {
+    "caller_number": "+48 22 000 1188",
+    "caller_claimed": "\"Grandson Max\" (claimed)",
+    "lines": [
+      ["caller", "Grandma? It is me, Max. I had an accident and the police are here."],
+      ["elder", "Max? Your voice sounds different."],
+      ["caller", "I need 6000 euros for the lawyer today or I go to jail."],
+      ["caller", "Don't tell mum and dad. A courier can pick up the cash in an hour."]
+    ]
+  },
+  "safe": {
+    "caller_number": "+49 30 444 2210",
+    "caller_claimed": "Dr. Schmidt practice",
+    "lines": [
+      ["caller", "Hello Mrs. Becker, this is Dr. Schmidt's practice."],
+      ["elder", "Hello!"],
+      ["caller", "Just a reminder of your appointment on Tuesday at 10. Please bring your insurance card."],
+      ["elder", "Thank you, I will be there."]
+    ]
+  }
+}
