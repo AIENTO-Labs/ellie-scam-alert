@@ -16,10 +16,10 @@ Round one is judged on the 2-minute video only, then the README. No pitch inside
 2. Phone rings. Announcement: "This call is protected by Ellie."
 3. Connected, transcript starts, status green.
 4. Caller: "Hi, this is Officer Weber, Berlin Police..." Tactics light up as they are heard: authority impersonation, urgency, secrecy.
-5. Score passes 90, status red, actions fire: Ellie's voice cuts in for Helga ("Police never ask for gift cards or codes. You can hang up.").
-6. Final shot: text message preview going out to Helga's daughter or son.
+5. Score passes 80, status red, actions fire: Ellie's voice cuts in for Rose ("Police never ask for gift cards or codes. You can hang up.").
+6. Final shot: text message preview going out to Rose's daughter Anna.
 
-Scenario is open between fake police (Jonno's beats) and fake bank fraud (earlier plan). [NEEDS CONFIRMATION]
+Built version: `app/call-demo` (Rose Miller, Detective Weber, €2,000 in Google Play cards, Ellie acts at 80). Rendered: `demo/call-demo.mp4`. This file's beats are the plan; `app/call-demo/script.js` is the truth.
 
 ## Earlier timed version
 
@@ -33,7 +33,8 @@ Scenario is open between fake police (Jonno's beats) and fake bank fraud (earlie
 
 ## Cast
 
-- Older woman: Helga (fictional). Actor [NEEDS CONFIRMATION]
-- Scammer: [NEEDS CONFIRMATION] (actor, or a generated voice)
+- Elder: Rose Miller, daughter Anna (fictional)
+- Caller: "Detective Weber"
+- All three voices: ElevenLabs
 
-Dialogue: [data/scam-transcripts/fake-police.md](../data/scam-transcripts/fake-police.md). The scorer turns red on the cash pickup line.
+Dialogue: `app/call-demo/script.js`, mirrored in [data/scam-transcripts/fake-police-rose.md](../data/scam-transcripts/fake-police-rose.md) for the scorer. The scorer crosses 80 on the gift card line, same as the demo.

@@ -16,15 +16,16 @@ Call audio → live transcript → enrichment → scoring → probability (0 to 
 | Voice | raised tone or stress, scripted cadence, refuses a callback |
 | Context | claims to be a relative in trouble, mismatch with known contacts |
 
-## Action tiers
+## Action tiers (0 to 100, matches the call demo)
 
-| Score | Colour | Action |
-|---|---|---|
-| under 0.5 | green | log only |
-| 0.5 to 0.89 | yellow | "pay attention" state on screen only; the call is **not** interrupted |
-| 0.9 and above | red | lower caller audio, companion voice cuts in with a warning, recording starts, family member alerted, guidance says hang up |
+| Score | Band | Colour | Action |
+|---|---|---|---|
+| under 30 | low | green | log only |
+| 30 to 59 | watch | amber | pay-attention state on screen; call not interrupted |
+| 60 to 79 | high | orange | stronger on-screen warning; call not interrupted |
+| 80 and over | scam | red | **Ellie acts:** private warning to the user (coach mode), text to the protector, call ends |
 
-The team agreed 50% for a small alert and 90% for full action. Yellow never interrupts the call; only red does. Exact cut-offs and colours (yellow vs orange) are a design decision to test with fake data. [NEEDS CONFIRMATION]
+Agreed with Jonno's call demo (`app/call-demo`, `docs/decisions.md`). Replaces the earlier 0.5 / 0.9 tiers.
 
 ## How we analyse the transcript (owner: João)
 
@@ -33,7 +34,7 @@ Two layers run on every new transcript chunk:
 1. **Rules layer** (`backend/scoring/score.py`): regex signals per tactic with weights. Instant, offline, explainable, drives the tactic labels on screen even if the API is slow.
 2. **Claude layer** (`prompts/scam-scorer.md`): Claude reads the transcript so far and returns JSON: probability, tactics with a quoted piece of evidence, a one-line reason and one-line advice for the user. This catches phrasing the rules miss and writes Ellie's warning.
 
-Final score = running max of `0.4 × rules + 0.6 × Claude`. Running max keeps a call red once it turns red. If the API fails, rules alone keep the demo working.
+Final score = running max of `0.4 × rules + 0.6 × Claude`, shown 0 to 100. Running max keeps a call red once it turns red. If the API fails, rules alone keep the demo working.
 
 Run it:
 
@@ -44,7 +45,17 @@ python backend/scoring/score.py data/scam-transcripts/fake-police.md            
 
 Each line prints JSON with the score, tier and tactics so the call screen can read it.
 
-Offline result on the fake police script: green through the opening, yellow at 0.75 when secrecy appears ("You must not tell your bank or your family"), red at 1.0 when the cash pickup is requested.
+Run on Jonno's demo script (`data/scam-transcripts/fake-police-rose.md`), rules only:
+
+| Caller line | Demo (hand-set) | Scorer (real) |
+|---|---|---|
+| c1 greeting | 6 | 0 |
+| c2 "Detective Weber, Berlin police" | 35 | 25 |
+| c3 gang, bank details at risk | 52 | 40 |
+| c4 act today, don't tell your family | 76 | 75 |
+| c5 €2,000 in Google Play cards | 94 | 100 |
+
+Both cross 80 on the same line. `--checks` prints this as a `checks` array in the shape `app/call-demo/script.js` uses, so the demo can run on real scorer output; with an API key, Claude writes the `reason` lines too.
 
 ## Which model
 
@@ -57,4 +68,4 @@ Model ids from the current Claude lineup; check docs.claude.com before the READM
 
 ## Demo case
 
-The demo uses the fake police script in `data/scam-transcripts/fake-police.md`. Lower-confidence cases are explained in the README and slides, not demoed.
+The demo uses Jonno's script: Rose Miller, "Detective Weber", €2,000 in Google Play cards (`data/scam-transcripts/fake-police-rose.md`, same lines as `app/call-demo/script.js`). Lower-confidence cases are explained in the README and slides, not demoed.
