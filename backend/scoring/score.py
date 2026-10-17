@@ -98,7 +98,7 @@ def caller_lines(path):
     """Lines starting with 'Caller:' or 'Elder:' from a transcript file."""
     out = []
     for line in Path(path).read_text(encoding="utf-8").splitlines():
-        m = re.match(r"^\s*(Caller|Elder|Helga)\s*:\s*(.+)$", line)
+        m = re.match(r"^\s*(Caller|Elder|Helga|Hilde)\s*:\s*(.+)$", line)
         if m:
             out.append((m.group(1), m.group(2)))
     return out
