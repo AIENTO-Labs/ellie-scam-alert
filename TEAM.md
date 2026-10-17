@@ -18,8 +18,9 @@ Audience: older adults (65+) and anyone vulnerable to phone scams, in Germany fi
 - Name: **Ellie**. Product line: "Ellie, your ally against scam calls" [NEEDS CONFIRMATION on tagline]
 - Voice: **female**, calm and soft
 - Avatar: **faceless**, a blob or mascot shape, never a human face
-- Status colours: green (under 0.5), yellow (0.5 to 0.89), red (0.9 and above)
-- Tactic labels shown on screen: authority impersonation, urgency, secrecy, payment request, credential request, threat
+- Risk score 0 to 100: low under 30 (green), watch 30 to 59 (amber), high 60 to 79 (orange), scam 80 and over (red). **Ellie acts at 80.**
+- Tactic keys (same in scorer and call demo): auth, urgency, secrecy, payment (gift cards), remote (remote access app), plus threat, credentials, emotion, isolation in the scorer
+- Demo cast: Rose Miller (elder), Anna (daughter), "Detective Weber, Berlin police". Reference UI: `app/call-demo/UI-SPEC.md`
 - Platform: web app, no download. Desktop and mobile shown; landline is a stated capability only
 - Deadline: **16:00 hard**. Repo, README and `demo/demo.mp4`. Feature freeze 15:00
 
@@ -44,7 +45,7 @@ Do not edit another owner's folder without telling them in WhatsApp.
 
 - `git pull` before you start, commit and push after each small step.
 - No API keys in code. Read `ANTHROPIC_API_KEY` from `.env`.
-- No real personal data or real phone numbers. Use fake names (Helga, Officer Weber) and fake numbers.
+- No real personal data or real phone numbers. Use fake names (Rose Miller, Detective Weber) and fake numbers.
 - Never invent statistics. Write `[NEEDS DATA]` and leave it for the research owner.
 - Writing style: no em dashes or double dashes; plain English for a senior reader and an older user.
 - Keep the demo path working above everything else. Cut scope before you miss 15:00.
