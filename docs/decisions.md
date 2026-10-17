@@ -10,7 +10,7 @@ Log anything agreed in the WhatsApp group here, so the repo stays the source of 
 - **Use case country:** Germany; demo in English.
 - **Repo is the single source of truth.** Every teammate's Claude reads TEAM.md first.
 
-- **Audience:** older adults (65+), with family members as the second user.
+- **Audience:** older adults (65+) and anyone vulnerable to phone scams. Protectors (family, carers, a trusted organisation) are the second user and receive the alerts.
 - **Problem focus:** scams, with voice calls as the main attack on older people.
 - **Demo:** voice only, one scam call that goes all the way to red. Scenario still open (fake police or fake bank fraud).
 - **Yellow never interrupts the call;** it only shows a pay-attention state. Red interrupts. The demo shows the red case.

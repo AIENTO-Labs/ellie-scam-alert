@@ -10,7 +10,7 @@ Round one is judged on the 2-minute video only, then the README. No pitch inside
 - Status moves green → yellow → red
 - On crossing the top threshold: full-width banner and the companion voice cuts in
 
-## Beats (John's current version)
+## Beats (Jonno's current version)
 
 1. Idle: screen says the line is protected.
 2. Phone rings. Announcement: "This call is protected by Ellie."
@@ -19,7 +19,7 @@ Round one is judged on the 2-minute video only, then the README. No pitch inside
 5. Score passes 90, status red, actions fire: Ellie's voice cuts in for Helga ("Police never ask for gift cards or codes. You can hang up.").
 6. Final shot: text message preview going out to Helga's daughter or son.
 
-Scenario is open between fake police (John's beats) and fake bank fraud (earlier plan). [NEEDS CONFIRMATION]
+Scenario is open between fake police (Jonno's beats) and fake bank fraud (earlier plan). [NEEDS CONFIRMATION]
 
 ## Earlier timed version
 
@@ -36,4 +36,4 @@ Scenario is open between fake police (John's beats) and fake bank fraud (earlier
 - Older woman: Helga (fictional). Actor [NEEDS CONFIRMATION]
 - Scammer: [NEEDS CONFIRMATION] (actor, or a generated voice)
 
-Full dialogue: to be written.
+Dialogue: [data/scam-transcripts/fake-police.md](../data/scam-transcripts/fake-police.md). The scorer turns red on the cash pickup line.
